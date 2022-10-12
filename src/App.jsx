@@ -1,29 +1,19 @@
-import React, { Component } from 'react'
-import { PubNubProvider } from 'pubnub-react'
+import React, {useState, useEffect} from 'react'
 import PubNub from 'pubnub'
-import shortid from 'shortid'
-import './App.css'
-import DownGoose from './DownGoose'
+import { PubNubProvider, usePubNub } from 'pubnub-react'
+import DownGoose from './DownGoose';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.pubnub = new PubNub({
-      publishKey: import.meta.env.VITE_PUBNUB_PUBLISH_KEY,
-      subscribeKey: import.meta.env.VITE_PUBNUB_SUBSCRIBE_KEY,
-      uuid: "someUniqueKeyHere"
-    });
-  }
+const pubnub = new PubNub({
+  publishKey: import.meta.env.VITE_PUBNUB_PUBLISH_KEY,
+  subscribeKey: import.meta.env.VITE_PUBNUB_SUBSCRIBE_KEY,
+  uuid: 'myUniqueUUID'
+});
 
-  render() {
-    return (
-      <PubNubProvider client={this.pubnub}>
-        <DownGoose
-          pubnub={this.pubnub}
-        />
-      </PubNubProvider>
-    );
-  }
+
+export default function App() {
+  return (
+    <PubNubProvider client={pubnub}>
+      <DownGoose />
+    </PubNubProvider>
+  )
 }
-
-export default App
