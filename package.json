@@ -13,7 +13,7 @@
     "pubnub": "7.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "shortid": "2.2.16"
+    "nanoid": "4.0.0"
   },
   "devDependencies": {
     "@types/pubnub": "^7.2.0",

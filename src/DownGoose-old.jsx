@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Game from './Game'
-import shortid from 'shortid'
 
 export default class DownGoose extends Component {
   constructor(props) {
@@ -19,6 +18,7 @@ export default class DownGoose extends Component {
   }
 
   onPressCreate = (e) => {
+    shortid.characters('0123456789');
     this.roomID = shortid.generate().substring(0,5);
     this.lobbyChannel = "downgooselobby".concat("--", this.roomID); // Lobby channel name
     if (import.meta.env.VITE_DEV === "true") {

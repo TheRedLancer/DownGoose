@@ -9,7 +9,6 @@ const pubnub = new PubNub({
   uuid: 'myUniqueUUID'
 });
 
-
 export default function App() {
   return (
     <PubNubProvider client={pubnub}>
