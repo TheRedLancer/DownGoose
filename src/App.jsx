@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import PubNub from 'pubnub'
 import { PubNubProvider, usePubNub } from 'pubnub-react'
 import DownGoose from './DownGoose';
+import './App.css'
 
 const pubnub = new PubNub({
   publishKey: import.meta.env.VITE_PUBNUB_PUBLISH_KEY,

@@ -52,6 +52,9 @@ button:hover {
   border-color: #646cff;
   background-color:#213547;
 }
+button:active {
+  background-color: red;
+}
 
 @media (prefers-color-scheme: light) {
   :root {
