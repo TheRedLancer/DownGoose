@@ -1,3 +1,9 @@
+/*
+  Author: Zach Burnaby
+  Project: DownGoose
+  Date: 10.15.2022
+*/
+
 import React from 'react'
 
 export default function Lobby(props) {

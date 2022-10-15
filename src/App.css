@@ -32,6 +32,11 @@
   }
 }
 
-/* .goose-card-img {
-  
-} */
+.card-active {
+  border-style: solid;
+  border-color: yellow;
+}
+
+li.player-card {
+  list-style: none;
+}

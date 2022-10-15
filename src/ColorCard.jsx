@@ -1,25 +1,30 @@
-import React, { Component } from 'react'
-import gooseCard from '/goose/v2/square-card-back.png'
+/*
+  Author: Zach Burnaby
+  Project: DownGoose
+  Date: 10.15.2022
+*/
 
-export default class GooseCard extends Component {
+import React from 'react'
+
+export default class ColorCard extends React.Component {
   constructor(props) {
-    super(props);
+    //props.playerName
+    //props.colorCard
     //props.rotation
-    //props.active
+    super(props);
   }
 
   render() {
     const rotateDeg = (this.props.rotation % 4) * 90;
     const imgClassName = this.props.active ? "card-active" : "card"
     return (
-      <div
-        className="goose-card">
-      <img
-          style={{
+      <div className='color-card'>
+        <img
+          style={{ 
             transform: `rotate(${rotateDeg}deg)` 
           }}
           className={imgClassName}
-          src={gooseCard} 
+          src={this.props.colorCard} 
           alt="ColorCard"
           width={50}
           height={50} 
@@ -27,4 +32,5 @@ export default class GooseCard extends Component {
       </div>
     )
   }
+  
 }

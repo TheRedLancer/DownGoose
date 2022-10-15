@@ -1,3 +1,9 @@
+/*
+  Author: Zach Burnaby
+  Project: DownGoose
+  Date: 10.15.2022
+*/
+
 import React, {useState, useEffect} from 'react'
 import PubNub from 'pubnub'
 import { PubNubProvider, usePubNub } from 'pubnub-react'

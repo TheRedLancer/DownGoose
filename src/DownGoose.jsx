@@ -1,3 +1,9 @@
+/*
+  Author: Zach Burnaby
+  Project: DownGoose
+  Date: 10.15.2022
+*/
+
 import { usePubNub } from 'pubnub-react'
 import React, { useState, useEffect } from 'react'
 import { customAlphabet } from 'nanoid'
