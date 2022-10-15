@@ -1,3 +1,9 @@
+/*
+  Author: Zach Burnaby
+  Project: DownGoose
+  Date: 10.15.2022
+*/
+
 import React, { Component } from 'react'
 import gooseCard from '/goose/v2/square-card-back.png'
 
