@@ -8,16 +8,27 @@ import React from 'react'
 import ColorCard from './ColorCard'
 import GooseCardArea from './GooseCardArea'
 import PlayerButtons from './PlayerButtons';
-import colorCard1 from '/goose/v2/front-blue1.png'
+import colorCardData from './colorCardData.json';
 
 export default function Game() {
+  /* Props:
+    gameChannel
+    isHost
+    currentPlayer
+    playerNames
+    endGame
+  */
   
-  const playerNames = ["player1", "player2", "player3", "player4", "player5", "player6"];
-  const playerCardRotations = [3, 2, 3, 1, 2, 2];
-  const playerColorCard = colorCard1;
+  const playerNames = ["player1", "player2", "player3"];
+  const playerCardRotations = [2, 2, 3];
   const numPlayers = playerNames.length;
   const activePlayer = "player2";
-  const playerColorCardColors = ["blue", "pink", "yellow", "orange"];
+  const playerColorCardColors = ["blue", "pink", "orange", "yellow"];
+  const playerColorCard = colorCardData[
+    playerColorCardColors[0] + "_" +
+    playerColorCardColors[1] + "_" +
+    playerColorCardColors[2] + "_" +
+    playerColorCardColors[3]];
   const calledColor = "blue";
   const numberQuacked = 3;
 
@@ -44,8 +55,8 @@ export default function Game() {
       <ColorCard
         playerName={playerNames[0]}
         rotation={playerCardRotations[0]}
-        colorCard={playerColorCard}
         active={activePlayer === playerNames[0]}
+        colorCardImg={playerColorCard}
       />
       <PlayerButtons
         currentColor={playerColorCardColors[playerCardRotations[0]]}

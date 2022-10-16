@@ -9,8 +9,8 @@ import React from 'react'
 export default class ColorCard extends React.Component {
   constructor(props) {
     //props.playerName
-    //props.colorCard
     //props.rotation
+    //props.colorCardImg
     super(props);
   }
 
@@ -20,11 +20,11 @@ export default class ColorCard extends React.Component {
     return (
       <div className='color-card'>
         <img
-          style={{ 
+          style={{
             transform: `rotate(${rotateDeg}deg)` 
           }}
           className={imgClassName}
-          src={this.props.colorCard} 
+          src={this.props.colorCardImg} 
           alt="ColorCard"
           width={50}
           height={50} 
