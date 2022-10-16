@@ -22,14 +22,14 @@ export default function Game() {
   const playerNames = ["player1", "player2", "player3"];
   const playerCardRotations = [2, 2, 3];
   const numPlayers = playerNames.length;
-  const activePlayer = "player2";
+  const activePlayer = "player1";
   const playerColorCardColors = ["blue", "pink", "orange", "yellow"];
   const playerColorCard = colorCardData[
     playerColorCardColors[0] + "_" +
     playerColorCardColors[1] + "_" +
     playerColorCardColors[2] + "_" +
     playerColorCardColors[3]];
-  const calledColor = "blue";
+  const calledColor = "orange";
   const numberQuacked = 3;
 
   let notification = "";

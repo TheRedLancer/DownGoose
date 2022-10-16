@@ -28,6 +28,9 @@ export default class Lobby extends Component {
     }
     return (
       <div className='lobby'>
+        <h1>
+          Join Code: {this.props.gameID}
+        </h1>
         {playerNames}
         {startButton}
       </div>

@@ -22,6 +22,7 @@ export default function Home(props) {
           />
         </div>
       <div className='lobby-form'>
+        <p>Nickname:</p>
         <textarea 
           className="nickname" 
           style={{
@@ -35,6 +36,21 @@ export default function Home(props) {
           rows="1"
           maxLength={16}
         />
+        <p>Join Code</p>
+        <textarea 
+          className="gameJoinCode" 
+          style={{
+            resize:"none"
+          }}
+          value={props.gameJoinCode} 
+          onChange={e => {
+            const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
+            props.setGameID(value)
+          }} 
+          rows="1"
+          maxLength={16}
+        />
+        <p></p>
         <button
           className="host-button"
           onClick={props.onPressHost}

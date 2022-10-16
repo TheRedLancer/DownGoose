@@ -5,7 +5,7 @@
 */
 
 import { usePubNub } from 'pubnub-react'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import PubNub from 'pubnub'
 import { customAlphabet, nanoid } from 'nanoid'
 import Game from './Game'
@@ -25,11 +25,14 @@ export default function DownGoose() {
   const [nickname, setNickname] = useState("");
   const [isHost, setIsHost] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [playerNames, setPlayerNames] = useState(["player1", "player2", "player3"]);
+  const [playerNames, setPlayerNames] = useState([]);
   const [endGame, setEndGame] = useState(false);
   const [gameChannel, setGameChannel] = useState("");
   const [gameID, setGameID] = useState("");
   const [playerID, setPlayerID] = useState(nanoid());
+  const [, updateState] = useState();
+  const forceUpdate = useCallback(() => updateState({}), []);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let display = null;
   if (isPlaying) {
@@ -45,6 +48,7 @@ export default function DownGoose() {
     if (inLobby) {
       display = <Lobby
         playerList = {playerNames}
+        gameID = {gameID}
         isHost = {isHost}
         onStartGame = {() => {
           console.log("onStartGame");
@@ -55,6 +59,52 @@ export default function DownGoose() {
         onPressHost = {() => {
           console.log("onPressHost()");
           const tempGameID = nanoid_room();
+          const tempGameChannel = "downgoosegame--" + tempGameID;
+          console.log(tempGameChannel);
+          setGameID(tempGameID);
+          setGameChannel(tempGameChannel);
+          pubnub.subscribe({
+            channels: [{gameChannel}],
+            withPresence: true
+          });
+          pubnub.addListener({
+            message: function(receivedMessage) {
+                // handle message
+                console.log("The message text is: ", receivedMessage.message);
+                console.log("Sent by: ", receivedMessage.publisher);
+                const messageJSON = JSON.parse(receivedMessage.message["text"]);
+                if (messageJSON["type"] === "addPlayer") {
+                  let l = {playerNames}["playerNames"];
+                  l.push(messageJSON["addPlayer"]);
+                  setPlayerNames(l);
+                };
+                sleep(500);
+                forceUpdate();
+            }
+          });
+          const nicknameStr = nickname.toString();
+          const message = {
+            "type": "addPlayer",
+            "addPlayer": nicknameStr
+          }
+          pubnub.publish(
+            {
+              channel: {gameChannel},
+              message: {"text": JSON.stringify(message)}
+            },
+            function(status, response) {
+              console.log(status);
+              console.log(response);
+              sleep(500);
+              forceUpdate();
+            }
+          );
+          setIsHost(true);
+          setInLobby(true);
+        }}
+        onPressJoin = {() => {
+          console.log("onPressJoin()");
+          const tempGameID = {gameID}["gameID"];
           const tempGameChannel = "downgoosegame--" + tempGameID.toString();
           setGameID(tempGameID);
           setGameChannel(tempGameChannel);
@@ -67,24 +117,41 @@ export default function DownGoose() {
                 // handle message
                 console.log("The message text is: ", receivedMessage.message);
                 console.log("Sent by: ", receivedMessage.publisher);
+                const messageJSON = JSON.parse(receivedMessage.message["text"]);
+                if (messageJSON["type"] === "addPlayer") {
+                  let l = {playerNames}["playerNames"];
+                  l.push(messageJSON["addPlayer"]);
+                  setPlayerNames(l);
+                };
+                sleep(500);
+                forceUpdate();
             }
           });
+          const nicknameStr = nickname.toString();
+          const message = {
+            "type": "addPlayer",
+            "addPlayer": nicknameStr
+          }
+          
           pubnub.publish(
             {
-              channel: {gameChannel},
-              message: {"text": "Start game"}
+              channel: [{gameChannel}["gameChannel"]],
+              message: {"text": JSON.stringify(message)}
             },
             function(status, response) {
               console.log(status);
               console.log(response);
+              sleep(500);
+              forceUpdate();
             }
           );
-        }}
-        onPressJoin = {() => {
-          console.log("onPressJoin()");
+          setIsHost(false);
+          setInLobby(true);
         }}
         nickname = {nickname}
         setNickname = {setNickname}
+        gameID = {gameID}
+        setGameID = {setGameID}
       />
     }
   }; 
