@@ -55,11 +55,19 @@ export default function DownGoose() {
         onPressHost = {() => {
           console.log("onPressHost()");
           const tempGameID = nanoid_room();
+          const tempGameChannel = "downgoosegame--" + tempGameID.toString();
           setGameID(tempGameID);
-          setGameChannel('downgoosegame--' + tempGameID);
+          setGameChannel(tempGameChannel);
           pubnub.subscribe({
             channels: [{gameChannel}],
             withPresence: true
+          });
+          pubnub.addListener({
+            message: function(receivedMessage) {
+                // handle message
+                console.log("The message text is: ", receivedMessage.message);
+                console.log("Sent by: ", receivedMessage.publisher);
+            }
           });
           pubnub.publish(
             {
