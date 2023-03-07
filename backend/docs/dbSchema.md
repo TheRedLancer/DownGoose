@@ -3,6 +3,11 @@
 | Field | Description | Type | Notes |
 |-------|-------------|------|-------|
 | `rooms` | Set of all room IDs | List | N/A |
+| `<roomID>:version` | version of game | String | N/A |
+| `<roomID>:create-time` | version of game | String | N/A |
+| `<roomID>:player-join` | Time when player joined | String | N/A |
+| `<roomID>:start-game` | Time of player start | String | N/A |
+| `<roomID>:last-interaction` | Latest player action time | String | N/A |
 | `<roomID>:ID` | Room code | String | N/A |
 | `<roomID>:players` | Ordered list of player IDs | List | Order matters because of player turns |
 | `<roomID>:active-player` | Active player ID | String | N/A |

@@ -3,7 +3,10 @@
 - Change backend to expect message for when to join or host
 - Add data to redis when connecting
 - Send redis game state data to frontend
-
+- Add react router to route game codes to games
+- Version my json: Add "game-version: 1.0"
+- Auto-gen name
+- identicon node package
 
 ### How to do it
 ```
@@ -23,4 +26,13 @@ player can:
         yell quack for number of upright geese
         DOWNGOOSE: all players rotate cards 180*
     }
+```
+
+```
+### backend responsibilities
+1. Matchmaking {
+    game key (unique and transient) + auth
+}
+
+2. Play
 ```

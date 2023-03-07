@@ -9,9 +9,9 @@ import Game from './Game'
 import Home from './Home'
 import Lobby from './Lobby'
 
-const socket = io("http://localhost:8000", {
+const socket = io("http://localhost:8000/game", {
     autoConnect: false,
-    withCredentials: false,
+    withCredentials: true,
 });
 
 export default function DownGoose() {
@@ -31,7 +31,16 @@ export default function DownGoose() {
         socket.on('connect', () => {
             setIsConnected(true);
         });
-    
+
+        socket.on('ping', () => {
+            console.log("got ping");
+            socket.volatile.emit('pong');
+        });
+
+        socket.on('pong', () => {
+            console.log("got pong");
+        });
+
         socket.on('disconnect', () => {
             setIsConnected(false);
         });
@@ -73,13 +82,14 @@ export default function DownGoose() {
             display = <Home
                 onPressHost = {() => {
                     console.log("onPressHost()");
-                    sendRequestHost();
+                    socket.volatile.emit('ping');
                 }}
                 onPressJoin = {() => {
-                    console.log("onPressJoin()");
                     if (isConnected) {
+                        console.log("Disconnecting");
                         socket.disconnect();
                     } else {
+                        console.log("Connecting");
                         socket.connect();
                     }
                 }}
