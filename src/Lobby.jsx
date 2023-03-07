@@ -3,7 +3,6 @@
   Project: DownGoose
   Date: 10.15.2022
 */
-
 import React, { Component } from 'react'
 
 export default class Lobby extends Component {
@@ -18,22 +17,22 @@ export default class Lobby extends Component {
 
   render() {
     const playerNames = this.props.playerList.map((playerName) => 
-      <li key={playerName}>
-        {playerName}
-      </li>
+        <li key={playerName}>
+            {playerName}
+        </li>
     );
     let startButton = null
     if (this.props.isHost) {
-      startButton = <button onClick={this.props.onStartGame}>Start game</button>
+        startButton = <button onClick={this.props.onStartGame}>Start game</button>
     }
     return (
-      <div className='lobby'>
-        <h1>
-          Join Code: {this.props.gameID}
-        </h1>
-        {playerNames}
-        {startButton}
-      </div>
+        <div className='lobby'>
+            <h1>
+                Join Code: {this.props.gameID}
+            </h1>
+            {playerNames}
+            {startButton}
+        </div>
     )
   }
 }

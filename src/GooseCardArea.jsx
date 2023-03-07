@@ -3,7 +3,6 @@
   Project: DownGoose
   Date: 10.15.2022
 */
-
 import React, { Component } from 'react'
 import GooseCard from './GooseCard'
 
