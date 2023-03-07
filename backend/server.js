@@ -1,34 +1,30 @@
 import { Server } from "socket.io";
 import { customAlphabet } from 'nanoid/non-secure';
 import { config } from "./src/config.js"
-import { createAdapter } from "@socket.io/redis-adapter";
-import { createClient } from "redis";
-import Room from "./src/roomManager.js";
+import RoomManager from "./src/roomManager.js";
+import { instrument } from '@socket.io/admin-ui';
 
 const port = process.env.PORT || 8000;
 
 const nanoid = customAlphabet('1234567890abcdef', 5);
-const pubClient = createClient({ url: "redis://localhost:6379" });
-const subClient = pubClient.duplicate();
 
-import { instrument } from '@socket.io/admin-ui';
 const io = new Server(port, {
     cors: {
-        origin: config.ALLOWLIST_HOSTS,
+        origin: config.ALLOWED_HOSTS,
         credentials: true
     }
 });
-io.adapter(createAdapter(pubClient, subClient));
 
-const roomIO = io.of('/room');
+const roomIO = io.of("/");
 roomIO.on('connection', async socket => {
     const { username, roomId, action } = socket.handshake.query;
     console.log(socket.id);
-    const room = new Room(roomIO, socket, roomId, action);
+    const room = new RoomManager(roomIO, socket, roomId, action);
     const joinedRoom = await room.init(username);
 
     if (joinedRoom) {
         console.log(username, "joined room", roomId);
+        // attach listeners
         room.showLobby();
         room.nextTurn();
         room.gameOver();

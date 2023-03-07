@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { config } from "./config.js"
 const { DEFAULT_MAX_PLAYERS } = config;
 
-export default class Room {
+export default class RoomManager {
     constructor(io, socket, roomId, action) {
         /** @type { Server } */
         this.io = io;
@@ -30,8 +30,6 @@ export default class Room {
             console.error("[INTERNAL ERROR] Room creation failed!");
             return false;
         }
-
-        console.debug(`Connected Clients are: ${clients}`);
 
         if (this.action === 'join') {
             if (clients.size > 0) {
@@ -69,8 +67,8 @@ export default class Room {
      * Preserving the gameState
      */
     onDisconnect() {
-        this.socker.on('disconnect', () => {
-            console.log(this.username, "disconnected from", this.roomId);
+        this.socket.on('disconnect', () => {
+            console.log(this.socket.id , "disconnected from", this.roomId);
             try {
                 this.showPlayers();
             } catch {

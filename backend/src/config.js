@@ -12,5 +12,7 @@ function getDefault(value, defaultValue) {
 export const config = {
     IS_DEVELOPMENT: getDefault(process.env.NODE_ENV, 'development') !== 'production',
     DEFAULT_MAX_PLAYERS: 14,
-    ALLOWLIST_HOSTS: ["https://admin.socket.io", "http://127.0.0.1:5173"],
+    ALLOWED_HOSTS: ["http://localhost:5173", "https://admin.socket.io"],
+    DEFAULT_EXPIRATION: 3600,
+    ROOM_EXPIRATION: 60 * 60 * 24 * 7 // one week
 }

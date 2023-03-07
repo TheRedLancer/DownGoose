@@ -11,7 +11,7 @@ import Lobby from './Lobby'
 
 const socket = io("http://localhost:8000", {
     autoConnect: false,
-    withCredentials: true,
+    withCredentials: false,
 });
 
 export default function DownGoose() {
