@@ -1,11 +1,15 @@
 import { Server } from "socket.io";
 import { customAlphabet } from 'nanoid/non-secure';
 import { config } from "./src/config.js"
+import { createAdapter } from "@socket.io/redis-adapter";
+import { createClient } from "redis";
 import Room from "./src/roomManager.js";
 
 const port = process.env.PORT || 8000;
 
 const nanoid = customAlphabet('1234567890abcdef', 5);
+const pubClient = createClient({ url: "redis://localhost:6379" });
+const subClient = pubClient.duplicate();
 
 import { instrument } from '@socket.io/admin-ui';
 const io = new Server(port, {
@@ -14,6 +18,7 @@ const io = new Server(port, {
         credentials: true
     }
 });
+io.adapter(createAdapter(pubClient, subClient));
 
 const roomIO = io.of('/room');
 roomIO.on('connection', async socket => {
