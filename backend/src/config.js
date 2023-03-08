@@ -17,6 +17,6 @@ export const config = {
         "http://localhost:5173","http://127.0.0.1:5173",
         "https://admin.socket.io"
     ],
-    DEFAULT_EXPIRATION: 3600,
+    DEFAULT_EXPIRATION: 60 * 60 * 24 * 7,
     ROOM_EXPIRATION: 60 * 60 * 24 * 7 // one week
 }

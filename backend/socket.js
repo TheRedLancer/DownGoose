@@ -1,8 +1,9 @@
 import { Server } from "socket.io";
 import { customAlphabet } from 'nanoid/non-secure';
-import { config } from "./src/config.js"
+import { config } from "./src/config.js";
 import RoomManager from "./src/roomManager.js";
 import { instrument } from '@socket.io/admin-ui';
+import db, { getJSON, setJSON } from "./src/db.js";
 
 const port = process.env.SOCKET_PORT || 8000;
 
@@ -17,36 +18,67 @@ const io = new Server(port, {
 
 const gameIO = io.of("/game");
 gameIO.on('connection', async socket => {
-    const { username, roomId, action } = socket.handshake.query;
-    const j = await gameIO.fetchSockets()
-    for (const i of j) {
-        console.log("IDS:")
-        if (i.id != socket.id) {
-            i.disconnect(close=true);
-        }
-        console.log(i.id, "connected");
-    }
-    // socket.volatile.emit("pong");
+    console.log(socket.id, "connected");
+
     socket.on("ping", () => {
-        console.log(socket.id, "pinged us");
-        // socket.volatile.emit("pong");
+        console.log(socket.id, "got ping");
+        socket.volatile.emit("pong", socket.id);
+        console.log(socket.id, "emit pong")
     });
 
-    socket.on("disconnect", async socket => {
-        console.log(socket.id, "disconnected");
+    socket.on('create-room', async (nickname, roomCode, cb) => {
+        if (!nickname) {
+            cb({
+                name: nickname,
+                roomCode: roomCode,
+                code: 1, // Conflict with current state (failure to create room)
+                message: "Nickname empty"
+            });
+            return;
+        }
+        if (!roomCode) {
+            cb({
+                name: nickname,
+                roomCode: roomCode,
+                code: 1, // Room code cannot be empty
+                message: "Room code empty"
+            });
+            return;
+        }
+        console.log("create-room", nickname, roomCode);
+        if (RoomManager.roomExists(roomCode)) {
+            console.log("Room creation: FAIL");
+            cb({
+                name: nickname,
+                roomCode: roomCode,
+                code: 1, // Conflict with current state (failure to create room)
+                message: "Room code already exists"
+            });
+            return;
+        }
+        let res = await RoomManager.createRoom(roomCode);
+        if (res) {
+            console.log("Room creation: OK");
+            cb({
+                name: nickname,
+                roomCode: roomCode,
+                code: 0, // Created new room
+                message: "Created room"
+            });
+            return;
+        }
+        cb({
+            name: nickname,
+            roomCode: roomCode,
+            code: 3, // Conflict with current state (failure to create room)
+            message: "Bad room creation"
+        })
+        return;
     })
-    //const room = new RoomManager(gameIO, socket, roomId, action);
-    //const joinedRoom = await room.init(username);
 
-    // if (joinedRoom) {
-    //     console.log(username, "joined room", roomId);
-    //     // attach listeners
-    //     room.showLobby();
-    //     room.nextTurn();
-    //     room.gameOver();
-    // }
-
-    // room.onDisconnect();
+    socket.on("disconnect", () => {
+        console.log(socket.id, "disconnected");
+    });
 });
 
 io.engine.on("connection_error", (err) => {

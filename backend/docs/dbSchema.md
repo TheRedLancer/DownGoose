@@ -13,7 +13,7 @@
 | `<roomID>:active-player` | Active player ID | String | N/A |
 | `<roomID>:next-player` | Active player ID | String | N/A |
 | `<roomID>:host` | Host player ID | String | N/A |
-| `<roomID>:status` | Game status | String | enum {lobby, playing, gameover} |
+| `<roomID>:gameState` | Game status | String | enum {lobby, playing, gameover} |
 | `<roomID>:<playerID>:ID` | Player ID | String | N/A |
 | `<roomID>:<playerID>:username` | Player's username | String | N/A |
 | `<roomID>:<playerID>:card-colors` | 4-length list of card colors | List | N/A |

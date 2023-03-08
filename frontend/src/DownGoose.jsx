@@ -23,26 +23,26 @@ export default function DownGoose() {
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [playerNames, setPlayerNames] = useState([]);
     const [endGame, setEndGame] = useState(false);
-    const [gameChannel, setGameChannel] = useState("");
     const [gameID, setGameID] = useState("");
     const [isConnected, setIsConnected] = useState(socket.connected);
 
     useEffect(() => {
         socket.on('connect', () => {
             setIsConnected(true);
-        });
+            socket.on('ping', () => {
+                console.log("got ping");
+                socket.volatile.emit('pong');
+            });
+    
+            socket.on('pong', (id) => {
+                console.log("got pong from", id);
+            });
 
-        socket.on('ping', () => {
-            console.log("got ping");
-            socket.volatile.emit('pong');
-        });
-
-        socket.on('pong', () => {
-            console.log("got pong");
-        });
-
-        socket.on('disconnect', () => {
-            setIsConnected(false);
+            socket.on('disconnect', () => {
+                socket.off('ping');
+                socket.off('pong');
+                setIsConnected(false);
+            });
         });
     
         return () => {
@@ -51,12 +51,12 @@ export default function DownGoose() {
         };
     }, []);
 
-    const onReceiveHost = (roomCode) => {
-        console.log("Got code:", roomCode);
+    const onReceiveRoom = (roomCode) => {
+        console.log("Room response:", roomCode);
     }
     
-    const sendRequestHost = () => {
-        socket.volatile.emit('request-host', onReceiveHost);
+    const sendCreateRoom = () => {
+        socket.volatile.emit('create-room', nickname, gameID, onReceiveRoom);
     }
     
     let display = undefined;
@@ -82,7 +82,7 @@ export default function DownGoose() {
             display = <Home
                 onPressHost = {() => {
                     console.log("onPressHost()");
-                    socket.volatile.emit('ping');
+                    sendCreateRoom();
                 }}
                 onPressJoin = {() => {
                     if (isConnected) {
