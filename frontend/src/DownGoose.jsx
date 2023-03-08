@@ -10,7 +10,7 @@ import Home from './Home'
 import Lobby from './Lobby'
 
 const socket = io("http://localhost:8000/game", {
-    autoConnect: false,
+    autoConnect: true,
     withCredentials: true,
 });
 
@@ -23,7 +23,7 @@ export default function DownGoose() {
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [playerNames, setPlayerNames] = useState([]);
     const [endGame, setEndGame] = useState(false);
-    const [gameID, setGameID] = useState("");
+    const [roomCode, setRoomCode] = useState("");
     const [isConnected, setIsConnected] = useState(socket.connected);
 
     useEffect(() => {
@@ -41,69 +41,79 @@ export default function DownGoose() {
             socket.on('disconnect', () => {
                 socket.off('ping');
                 socket.off('pong');
+                socket.off('player-join');
                 setIsConnected(false);
+            });
+
+            socket.on('player-join', (newNickname) => {
+                console.log("Got player-join")
+                setPlayerNames((oldArr) => [...oldArr, newNickname]);
             });
         });
     
         return () => {
             socket.off('connect');
             socket.off('disconnect');
+            socket.off('pong');
         };
-    }, []);
+    });
 
-    const onReceiveRoom = (roomCode) => {
-        console.log("Room response:", roomCode);
+    const onJoinRoom = (response) => {
+        console.log("onJoinRoom:", "Room response:", response);
+        if (response.code === 0) {
+            setInLobby(true);
+        }
+    }
+
+    const onReceiveRoom = (response) => {
+        console.log("onReceiveRoom:", "Room response:", response);
+        if (response.code === 0) {
+            //good response
+            socket.volatile.emit('join-room', roomCode, nickname, onJoinRoom);
+        } else {
+            console.log("Error:", response.message);
+        }
     }
     
     const sendCreateRoom = () => {
-        socket.volatile.emit('create-room', nickname, gameID, onReceiveRoom);
-    }
-    
-    let display = undefined;
-    if (isPlaying) {
-        display = <Game
-            gameChannel={gameChannel}
-            isHost={isHost}
-            currentPlayer={currentPlayer}
-            playerNames={playerNames}
-            endGame={endGame}
-        />
-    } else {
-        if (inLobby) {
-            display = <Lobby
-                playerList = {playerNames}
-                gameID = {gameID}
-                isHost = {isHost}
-                onStartGame = {() => {
-                    console.log("onStartGame");
-                }}
-            />
+        if (nickname && roomCode) {
+            socket.volatile.emit('create-room', roomCode, onReceiveRoom);
         } else {
-            display = <Home
+            console.log("MISSING DATA");
+        }
+    }
+
+    const sendJoinRoom = () => {
+        if (nickname && roomCode) {
+            socket.volatile.emit('join-room', roomCode, nickname, onJoinRoom);
+        } else {
+            console.log("MISSING DATA");
+        }
+    }
+
+    return (
+        <div>
+            <Home
                 onPressHost = {() => {
                     console.log("onPressHost()");
                     sendCreateRoom();
                 }}
                 onPressJoin = {() => {
-                    if (isConnected) {
-                        console.log("Disconnecting");
-                        socket.disconnect();
-                    } else {
-                        console.log("Connecting");
-                        socket.connect();
-                    }
+                    sendJoinRoom();
                 }}
                 nickname = {nickname}
                 setNickname = {setNickname}
-                gameID = {gameID}
-                setGameID = {setGameID}
+                roomCode = {roomCode}
+                setRoomCode = {setRoomCode}
             />
-        }
-    };
-
-    return (
-        <div>
-            {display}
+            <Lobby
+                playerList = {playerNames}
+                roomCode = {roomCode}
+                isHost = {isHost}
+                onStartGame = {() => {
+                    console.log("onStartGame");
+                }}
+            />
         </div>
     )
 }

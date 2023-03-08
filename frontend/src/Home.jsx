@@ -41,10 +41,10 @@ export default function Home(props) {
           style={{
             resize:"none"
           }}
-          value={props.gameJoinCode} 
+          value={props.roomCode} 
           onChange={e => {
             const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
-            props.setGameID(value)
+            props.setRoomCode(value)
           }} 
           rows="1"
           maxLength={16}

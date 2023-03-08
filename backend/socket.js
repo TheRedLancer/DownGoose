@@ -26,55 +26,69 @@ gameIO.on('connection', async socket => {
         console.log(socket.id, "emit pong")
     });
 
-    socket.on('create-room', async (nickname, roomCode, cb) => {
-        if (!nickname) {
-            cb({
-                name: nickname,
-                roomCode: roomCode,
-                code: 1, // Conflict with current state (failure to create room)
-                message: "Nickname empty"
-            });
-            return;
-        }
-        if (!roomCode) {
-            cb({
-                name: nickname,
-                roomCode: roomCode,
-                code: 1, // Room code cannot be empty
-                message: "Room code empty"
-            });
-            return;
-        }
-        console.log("create-room", nickname, roomCode);
-        if (RoomManager.roomExists(roomCode)) {
+    socket.on('create-room', async (roomCode, cb) => {
+        console.log("create-room", roomCode);
+        if (await RoomManager.roomExists(roomCode)) {
             console.log("Room creation: FAIL");
             cb({
-                name: nickname,
-                roomCode: roomCode,
+                roomCode: null,
                 code: 1, // Conflict with current state (failure to create room)
                 message: "Room code already exists"
             });
             return;
         }
-        let res = await RoomManager.createRoom(roomCode);
-        if (res) {
+        console.log("Room does not exist");
+        try {
+            await RoomManager.createRoom(roomCode);
             console.log("Room creation: OK");
             cb({
-                name: nickname,
                 roomCode: roomCode,
                 code: 0, // Created new room
                 message: "Created room"
             });
+        } catch (e) {
+            console.log(e);
+            cb({
+                roomCode: null,
+                code: 3, // Failed to create room
+                message: "Bad room creation"
+            });
+        }        
+    });
+
+    socket.on("join-room", async (roomCode, username, cb) => {
+        console.log(socket.id, "joining", roomCode, "as", username);
+        if (!(await RoomManager.roomExists(roomCode))) {
+            cb({
+                username: username,
+                roomCode: null,
+                code: 1, // Conflict with current state (failure to create room)
+                message: "Cannot join room: room does not exist"
+            });
             return;
         }
-        cb({
-            name: nickname,
-            roomCode: roomCode,
-            code: 3, // Conflict with current state (failure to create room)
-            message: "Bad room creation"
-        })
-        return;
-    })
+        try {
+            await RoomManager.joinRoom(roomCode, username);
+            socket.join(roomCode);
+            console.log(socket.rooms, roomCode, username);
+            gameIO.in(roomCode).emit("player-join", username);
+            console.log(username, "room join: OK");
+            cb({
+                username: username,
+                roomCode: roomCode,
+                code: 0, // Created new room
+                message: "Joined room"
+            });
+        } catch (e) {
+            console.log(e);
+            cb({
+                username: username,
+                roomCode: null,
+                code: 3, // Failed to join room
+                message: "Cannot join room: bad room join"
+            })
+        }        
+    });
 
     socket.on("disconnect", () => {
         console.log(socket.id, "disconnected");

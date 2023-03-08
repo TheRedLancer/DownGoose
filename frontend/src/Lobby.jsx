@@ -5,35 +5,25 @@
 */
 import React, { Component } from 'react'
 
-export default class Lobby extends Component {
-  constructor(props) {
-    super(props);
+export default function Lobby(props) {
     /* Props
       playerList
       isHost
+      roomCode
       onStartGame()
     */
-  }
-
-  render() {
-    const playerNames = this.props.playerList.map((playerName) => 
-        <li key={playerName}>
-            {playerName}
-        </li>
-    );
-    let startButton = null
-    if (this.props.isHost) {
-        startButton = <button onClick={this.props.onStartGame}>Start game</button>
-    }
     return (
         <div className='lobby'>
             <h1>
-                Join Code: {this.props.gameID}
+                Join Code: {props.roomCode}
             </h1>
-            {playerNames}
-            {startButton}
+            {props.playerList.map((playerName) => 
+                <li key={playerName}>
+                    {playerName}
+                </li>
+            )}
+            <button onClick={props.onStartGame} disabled={!props.isHost}>Start game</button>
         </div>
     )
-  }
 }
 
