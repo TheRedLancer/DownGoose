@@ -1,7 +1,6 @@
 /*
   Author: Zach Burnaby
   Project: DownGoose
-  Date: 10.15.2022
 */
 import React from 'react'
 const playerList = ["Zach", "Maddie", "Dan"];

@@ -4,46 +4,47 @@
   Date: 10.15.2022
 */
 import React from 'react'
-import ColorCard from './ColorCard'
-import GooseCardArea from './GooseCardArea'
+import GooseCardArea from './components/GooseCardArea'
 import PlayerButtons from './PlayerButtons';
 import colorCardData from './colorCardData.json';
 
-const Game = (props) => {
-    /* Props:
-        gameChannel
-        isHost
-        currentPlayer
-        playerNames
-        endGame
-    */
-    
-    const playerNames = ["player1", "player2", "player3"];
-    const playerCardRotations = [3, 0, 0];
-    const numPlayers = playerNames.length;
-    const activePlayer = "player3";
-    const playerColorCardColors = ["blue", "pink", "orange", "yellow"];
-    const playerColorCard = colorCardData[
-        playerColorCardColors[0] + "_" +
-        playerColorCardColors[1] + "_" +
-        playerColorCardColors[2] + "_" +
-        playerColorCardColors[3]];
-    const calledColor = "orange";
-    const numberQuacked = 3;
+const playerNames = ["player1", "player2", "player3"];
+const playerCardRotations = [3, 0, 0];
+const numPlayers = playerNames.length;
+const activePlayer = "player3";
+const playerColorCardColors = ["blue", "pink", "orange", "yellow"];
+const playerColorCard = colorCardData[
+    playerColorCardColors[0] + "_" +
+    playerColorCardColors[1] + "_" +
+    playerColorCardColors[2] + "_" +
+    playerColorCardColors[3]];
+const calledColor = "orange";
+const numberQuacked = 3;
 
-    let notification = "";
-    if (activePlayer === playerNames[0]) {
-        notification = "It's your turn!"
-    } else if (calledColor === "quack") {
-        notification = "Active Player Quacked!";
-    } else {
-        notification = "Called color: " + calledColor;
+/**
+ * 
+ * @param {Object} props 
+ * @param props.roomCode
+ * @param props.isHost
+ * @param props.currentPlayer
+ * @param props.playerNames
+ * @returns 
+ */
+export default function Game(props) {    
+    const notification = () => {
+        if (activePlayer === playerNames[0]) {
+            return "It's your turn!"
+        } else if (calledColor === "quack") {
+            return "Active Player Quacked!";
+        } else {
+            return "Called color: " + calledColor;
+        }
     }
 
     return (
         <div className='game'>
             <h2>
-                Notification: {notification}
+                Notification: {notification()}
             </h2>
             <GooseCardArea
                 playerNames={playerNames.slice(1, numPlayers)}
@@ -51,11 +52,11 @@ const Game = (props) => {
                 activePlayer={activePlayer}
             />
             {playerNames[0]}
-            <ColorCard
+            <Card
                 playerName={playerNames[0]}
                 rotation={playerCardRotations[0]}
                 active={activePlayer === playerNames[0]}
-                colorCardImg={playerColorCard}
+                image={playerColorCard}
             />
             <PlayerButtons
                 currentColor={playerColorCardColors[playerCardRotations[0]]}
@@ -66,5 +67,3 @@ const Game = (props) => {
         </div>
     )
 }
-
-export default Game;
