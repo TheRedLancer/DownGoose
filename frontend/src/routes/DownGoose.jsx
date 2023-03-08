@@ -5,9 +5,10 @@
 */
 import React, { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
-import Game from './Game'
-import Home from './Home'
-import Lobby from './Lobby'
+import Game from '../Game'
+import Home from '../Home'
+import Lobby from '../Lobby'
+import '../DownGoose.css'
 
 const socket = io("http://localhost:8000/game", {
     autoConnect: true,
@@ -15,14 +16,7 @@ const socket = io("http://localhost:8000/game", {
 });
 
 export default function DownGoose() {
-    const [isDisabled, setDisabled] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [inLobby, setInLobby] = useState(false);
     const [nickname, setNickname] = useState("");
-    const [isHost, setIsHost] = useState(false);
-    const [currentPlayer, setCurrentPlayer] = useState(null);
-    const [playerNames, setPlayerNames] = useState([]);
-    const [endGame, setEndGame] = useState(false);
     const [roomCode, setRoomCode] = useState("");
     const [isConnected, setIsConnected] = useState(socket.connected);
 
@@ -47,7 +41,6 @@ export default function DownGoose() {
 
             socket.on('player-join', (newNickname) => {
                 console.log("Got player-join")
-                setPlayerNames((oldArr) => [...oldArr, newNickname]);
             });
         });
     
@@ -60,9 +53,6 @@ export default function DownGoose() {
 
     const onJoinRoom = (response) => {
         console.log("onJoinRoom:", "Room response:", response);
-        if (response.code === 0) {
-            setInLobby(true);
-        }
     }
 
     const onReceiveRoom = (response) => {
@@ -105,14 +95,6 @@ export default function DownGoose() {
                 setNickname = {setNickname}
                 roomCode = {roomCode}
                 setRoomCode = {setRoomCode}
-            />
-            <Lobby
-                playerList = {playerNames}
-                roomCode = {roomCode}
-                isHost = {isHost}
-                onStartGame = {() => {
-                    console.log("onStartGame");
-                }}
             />
         </div>
     )

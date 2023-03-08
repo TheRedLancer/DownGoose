@@ -3,7 +3,8 @@
   Project: DownGoose
   Date: 10.15.2022
 */
-import React, { Component } from 'react'
+import React from 'react'
+const playerList = ["Zach", "Maddie", "Dan"];
 
 export default function Lobby(props) {
     /* Props
@@ -15,14 +16,15 @@ export default function Lobby(props) {
     return (
         <div className='lobby'>
             <h1>
-                Join Code: {props.roomCode}
+                {/* Join Code: {props.roomCode} */}
+                Join Code: ABCD
             </h1>
-            {props.playerList.map((playerName) => 
+            {playerList.map((playerName) => 
                 <li key={playerName}>
                     {playerName}
                 </li>
             )}
-            <button onClick={props.onStartGame} disabled={!props.isHost}>Start game</button>
+            {/* <button onClick={props.onStartGame} disabled={!props.isHost}>Start game</button> */}
         </div>
     )
 }
