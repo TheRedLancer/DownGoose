@@ -8,37 +8,23 @@ import '../Home.css'
 export default function Home() {
     const [nickname, setNickname] = useState("");
     const [roomCode, setRoomCode] = useState("");
-
-    const onJoinRoom = (response) => {
-        console.log("onJoinRoom:", "Room response:", response);
-    }
-
-    const onReceiveRoom = (response) => {
-        console.log("onReceiveRoom:", "Room response:", response);
-        if (response.code === 0) {
-            //good response
-            // socket.volatile.emit('join-room', roomCode, nickname, onJoinRoom);
-        } else {
-            console.log("Error:", response.message);
-        }
-    }
     
-    const sendCreateRoom = () => {
-        if (nickname && roomCode) {
-            // socket.volatile.emit('create-room', roomCode, onReceiveRoom);
-            console.log("EMIT create-room");
-        } else {
-            console.log("MISSING DATA");
-        }
+    const onHostButton = async () => {
+        console.log("Host");
+        const res = await fetch("http://localhost:3000/api/room/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                roomCode: roomCode
+            })
+        }).catch(error => console.log(error));
+        console.log(await res.json());
     }
 
-    const sendJoinRoom = () => {
-        if (nickname && roomCode) {
-            console.log("EMIT join-room");
-            //socket.volatile.emit('join-room', roomCode, nickname, onJoinRoom);
-        } else {
-            console.log("MISSING DATA");
-        }
+    const onJoinButton = () => {
+        console.log("Join");
     }
 
     return (
@@ -85,14 +71,10 @@ export default function Home() {
                     maxLength={16}
                 />
                 <p></p>
-                <button className="host-button" onClick={() => {
-                    sendCreateRoom();
-                }}>
+                <button className="host-button" onClick={onHostButton}>
                     Host
                 </button>
-                <button className="join-button" onClick={() => {
-                    sendJoinRoom();
-                }}>
+                <button className="join-button" onClick={onJoinButton}>
                     Join
                 </button>
             </div>

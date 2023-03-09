@@ -13,7 +13,7 @@ export const config = {
     IS_DEVELOPMENT: getDefault(process.env.NODE_ENV, 'development') !== 'production',
     DEFAULT_MAX_PLAYERS: 14,
     ALLOWED_HOSTS: [ 
-        "https://localhost:3000","http://127.0.0.1:3000",
+        "http://localhost:3000","http://127.0.0.1:3000",
         "http://localhost:5173","http://127.0.0.1:5173",
         "https://admin.socket.io"
     ],
