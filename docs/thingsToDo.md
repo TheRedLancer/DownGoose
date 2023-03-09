@@ -1,5 +1,5 @@
 # TODO
-
+- check name clashes in lobby for join
 - Change backend to expect message for when to join or host
 - Add data to redis when connecting
 - Send redis game state data to frontend
@@ -35,4 +35,8 @@ player can:
 }
 
 2. Play
+```
+
+```
+When you go to /game/:roomCode, get the name from localstorage, connect to socket. Socket sends player data currently in the lobby and game state as a response. Set up the listener to redis game instance.
 ```

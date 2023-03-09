@@ -1,4 +1,4 @@
-/*
+/**
   Author: Zach Burnaby
   Project: DownGoose
 */
@@ -20,7 +20,7 @@ export default function Card(props) {
                 }}
                 className={"card" + props.active ? "active" : ""}
                 src={props.image} 
-                alt="ColorCard"
+                alt="Card"
                 width={50}
                 height={50} 
             />

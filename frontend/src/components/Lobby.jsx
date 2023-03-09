@@ -3,7 +3,6 @@
   Project: DownGoose
 */
 import React from 'react'
-const playerList = ["Zach", "Maddie", "Dan"];
 
 export default function Lobby(props) {
     /* Props
@@ -15,10 +14,9 @@ export default function Lobby(props) {
     return (
         <div className='lobby'>
             <h1>
-                {/* Join Code: {props.roomCode} */}
-                Join Code: ABCD
+                Join Code: {props.roomCode || "No room code"}
             </h1>
-            {playerList.map((playerName) => 
+            {(props.playerList || []).map((playerName) => 
                 <li key={playerName}>
                     {playerName}
                 </li>

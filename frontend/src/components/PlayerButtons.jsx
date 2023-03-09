@@ -1,4 +1,4 @@
-/*
+/**
     Author: Zach Burnaby
     Project: DownGoose
 */
@@ -27,10 +27,10 @@ export default function PlayerButtons(props) {
                     </div>
                 </div>
             }
-            {(!props.active && this.props.currentColor === this.props.calledColor) &&
+            {(!props.active && props.currentColor === props.calledColor) &&
                 <div className='player-choice'>
                     <button>
-                        Stay at {this.props.currentColor}
+                        Stay at {props.currentColor}
                     </button>
                 </div>
             }
@@ -42,10 +42,10 @@ export default function PlayerButtons(props) {
             {(!props.active && props.currentColor != props.calledColor && props.calledColor != "quack") &&
                 <div className='player-choice'>
                 <button>
-                    Stay at {this.props.currentColor}
+                    Stay at {props.currentColor}
                 </button>
                 <button>
-                    Change to {this.props.calledColor}
+                    Change to {props.calledColor}
                 </button>
                 </div>
             }

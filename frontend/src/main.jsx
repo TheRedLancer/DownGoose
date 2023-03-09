@@ -1,3 +1,7 @@
+/**
+  Author: Zach Burnaby
+  Project: DownGoose
+*/
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {
@@ -5,19 +9,19 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import './index.css'
-import Lobby from './Lobby';
+import Game from './pages/Game';
+import Home from './pages/Home';
 import ErrorPage from './pages/error-page';
-import DownGoose from './routes/DownGoose';
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <DownGoose/>,
+        element: <Home/>,
         errorElement: <ErrorPage/>
     },
     {
         path: 'game/:roomCode',
-        element: <Lobby />
+        element: <Game />
     },
 ]);
 
