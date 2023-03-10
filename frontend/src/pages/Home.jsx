@@ -5,22 +5,33 @@
 import React, { useState, useEffect } from 'react'
 import '../Home.css'
 
+const makeRoom = async (roomCode) => {
+    const res = await fetch("http://localhost:3000/api/room/create", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            roomCode: roomCode
+        })
+    }).catch(error => console.log(error));
+    return res;
+}
+
 export default function Home() {
     const [nickname, setNickname] = useState("");
     const [roomCode, setRoomCode] = useState("");
     
     const onHostButton = async () => {
         console.log("Host");
-        const res = await fetch("http://localhost:3000/api/room/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                roomCode: roomCode
-            })
-        }).catch(error => console.log(error));
-        console.log(await res.json());
+        if (nickname && roomCode) {
+            let res = await makeRoom(roomCode);
+            if (res.status === 200) {
+                console.log(`good result, `, await res.json());
+            } else {
+                console.log(`bad result`);
+            }
+        }
     }
 
     const onJoinButton = () => {

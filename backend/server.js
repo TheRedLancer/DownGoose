@@ -20,12 +20,15 @@ export default function startServer() {
     server.use(cors(corsOptions));
     server.use(express.static(path.join(__dirname, 'public')));
 
-    server.post('/api/room/create', express.json(), async (req, res) => {
+    server.put('/api/room/create', express.json(), async (req, res) => {
         console.log(req.body);
-        res.send({response: "goose"});
-    })
+        
+        res.send({
+            response: "goose"
+        });
+    });
 
-    server.get('/', (req, res) => {
+    server.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
 

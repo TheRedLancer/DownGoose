@@ -3,7 +3,7 @@ import { customAlphabet } from 'nanoid/non-secure';
 import { config } from "./src/config.js";
 import RoomManager from "./src/roomManager.js";
 import { instrument } from '@socket.io/admin-ui';
-import db, { getJSON, setJSON } from "./src/db.js";
+import db from "./src/db.js";
 
 const port = process.env.SOCKET_PORT || 8000;
 

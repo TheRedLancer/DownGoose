@@ -1,3 +1,5 @@
+import { Schema, Repository} from 'redis-om'
+
 const schemas = {
     Room: function (roomCode) {
         return {
