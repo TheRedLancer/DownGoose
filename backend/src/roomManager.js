@@ -1,8 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { config } from './config.js'
 const { DEFAULT_MAX_PLAYERS } = config;
-import * as DB from './db.js'
-import schemas from './schemas.js';
 
 const RoomManager = {
     roomExists: async function (roomCode) {

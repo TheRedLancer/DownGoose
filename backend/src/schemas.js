@@ -18,11 +18,12 @@ const gameRoomSchema = new Schema('gameRoom', {
 const playerSchema = new Schema('player', {
     version: {type: 'number'},    
     username: {type: 'string'},
+    roomCode: {type: 'string'},
     joinTime: {type: 'date'},
     cardColors: {type: 'string[]'}, // ['1', '0', '3', '2']
     currentRotation: {type: 'number'},
     ready: {type: 'boolean'},
-    action: {type: 'number'}, // 1: DownGoose!, 2: Color
+    action: {type: 'number'}, // 1: downgoose, 2: color, 3: waiting
     colorChoice: {type: 'number'},
     doneRotating: {type: 'boolean'},
 }, {
