@@ -1,4 +1,7 @@
 import { Redis } from 'ioredis'
+import { createClient } from 'redis'
+import { Repository } from 'redis-om'
+import * as SCHEMAS from './schemas.js'
 import { config } from './config.js';
 
 // const db = new Redis({
@@ -17,12 +20,16 @@ import { config } from './config.js';
 
 import { createClient } from 'redis'
 
-const db = createClient({
+const redis = createClient({
     url: 'redis://127.0.0.1:6379'
 })
-db.on('error', (err) => console.log('Redis Client Error', err));
-await db.connect()
-console.log(await db.ping());
+redis.on('error', (err) => console.log('Redis Client Error', err));
+await redis.connect()
+console.log(await redis.ping());
+
+const gameRoomRepo = new Repository(SCHEMAS.gameRoomSchema, redis)
+const playerRepo = new Repository(SCHEMAS.playerSchema, redis)
+
 
 // export async function getJSON(key, path="", expire=config.DEFAULT_EXPIRATION) {
 //     let res = await db.call("JSON.GET", key, "$" + path);
@@ -48,4 +55,4 @@ console.log(await db.ping());
 //     return res;
 // }
 
-export default db;
+export default redis;
