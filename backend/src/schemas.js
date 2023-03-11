@@ -17,7 +17,7 @@ const gameRoomSchema = new Schema('gameRoom', {
 
 const playerSchema = new Schema('player', {
     version: {type: 'number'},    
-    username: {type: 'string'},
+    nickname: {type: 'string'},
     roomCode: {type: 'string'},
     joinTime: {type: 'date'},
     cardColors: {type: 'string[]'}, // ['1', '0', '3', '2']
@@ -45,10 +45,10 @@ const playerSchema = new Schema('player', {
 //             gameState: "lobby",
 //         }
 //     },
-//     Player: function (username) {
+//     Player: function (nickname) {
 //         return {
 //             version: "1",
-//             username: username,
+//             nickname: nickname,
 //             id: "",
 //             joinTime: Date.now(),
 //             cardColors: [], // ['1', '0', '3', '2']

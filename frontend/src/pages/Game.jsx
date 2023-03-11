@@ -35,6 +35,8 @@ export default function Game(props) {
     const [calledColor, setCalledColor] = useState("orange");
     const [numberQuacked, setNumberQuacked] = useState(3);
 
+    const {room, roomId} = useLocation();
+
     const notification = () => {
         if (activePlayer === playerNames[0]) {
             return "It's your turn!"
@@ -46,6 +48,7 @@ export default function Game(props) {
     }
 
     useEffect(() => {
+        console.log(room, roomId);
         socket.on('connect', () => {
             setIsConnected(true);
             socket.on('ping', () => {

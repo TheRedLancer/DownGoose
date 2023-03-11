@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import '../Home.css'
 
-const makeRoom = async (roomCode) => {
+const putRoom = async (roomCode) => {
     const res = await fetch("http://localhost:3000/api/room/create", {
         method: "PUT",
         headers: {
@@ -19,29 +19,58 @@ const makeRoom = async (roomCode) => {
     return res;
 }
 
+const putPlayerInRoom = async (roomCode, nickname) => {
+    const res = await fetch("http://localhost:3000/api/room/add_player", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            roomCode: roomCode,
+            nickname: nickname,
+        })
+    }).catch(error => console.log(error));
+    return res;
+}
+
 export default function Home() {
     const [nickname, setNickname] = useState("");
     const [roomCode, setRoomCode] = useState("");
 
     const navigate = useNavigate();
+
+    const joinRoom = async () => {
+        let joinRes = await putPlayerInRoom(roomCode, nickname);
+        if (joinRes.status != 200) {
+            console.log(`Error: could not join: ${res.message}`);
+            return;
+        }
+        console.log("good result");
+        navigate(`/game/${state.roomCode}`, { state: joinRes.body });
+    }
     
     const onHostButton = async () => {
         console.log("Host");
-        if (nickname && roomCode) {
-            let res = await makeRoom(roomCode);
-            if (res.status != 200) {
-                console.log(`bad result`);
-                return;
-            }
-            console.log("good result");
-            navigate(`/game/${roomCode}`, { state: { id: 7, color: 'green' } });
-        } else {
+        if (!nickname || !roomCode) {
             console.log("FILL IN NAME OR ROOMCODE");
+            return;
         }
+        let createRes = await putRoom(roomCode);
+        console.log(createRes);
+        if (createRes.status != 200) {
+            console.log(`Error: could not create room ${roomCode}`);
+            return;
+        }
+        joinRoom();
     }
 
-    const onJoinButton = () => {
+    const onJoinButton = async () => {
         console.log("Join");
+        if (!nickname || !roomCode) {
+            console.log("FILL IN NAME OR ROOMCODE");
+            return;
+        }
+        joinRoom();
     }
 
     return (
@@ -82,7 +111,7 @@ export default function Home() {
                     value={roomCode} 
                     onChange={e => {
                         const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
-                        setRoomCode(value)
+                        setRoomCode(value);
                     }} 
                     rows="1"
                     maxLength={16}

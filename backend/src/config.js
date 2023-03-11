@@ -18,5 +18,7 @@ export const config = {
         "https://admin.socket.io"
     ],
     DEFAULT_EXPIRATION: 60 * 3,
-    ROOM_EXPIRATION: 60 * 60 * 24 * 7 // one week
+    ROOM_EXPIRATION: 60 * 60 * 24 * 7, // one week
+    SERVER_PORT: 3000,
+    SOCKET_PORT: 8000,
 }
