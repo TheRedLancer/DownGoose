@@ -2,7 +2,8 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from "react-router-dom";
 import '../Home.css'
 
 const makeRoom = async (roomCode) => {
@@ -21,16 +22,19 @@ const makeRoom = async (roomCode) => {
 export default function Home() {
     const [nickname, setNickname] = useState("");
     const [roomCode, setRoomCode] = useState("");
+
+    const navigate = useNavigate();
     
     const onHostButton = async () => {
         console.log("Host");
         if (nickname && roomCode) {
             let res = await makeRoom(roomCode);
-            if (res.status === 200) {
-                console.log(`good result, `, await res.json());
-            } else {
+            if (res.status != 200) {
                 console.log(`bad result`);
+                return;
             }
+            console.log("good result");
+            navigate(`/game/${roomCode}`, { state: { id: 7, color: 'green' } });
         } else {
             console.log("FILL IN NAME OR ROOMCODE");
         }

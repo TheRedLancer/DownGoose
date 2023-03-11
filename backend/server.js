@@ -25,32 +25,41 @@ export default function startServer() {
     server.put('/api/room/create', express.json(), async (req, res) => {
         console.log(req.body);
         let {roomCode} = req.body;
-        let room;
+        let room, status, message;
         try {
             room = await createGameRoom(roomCode);
+            status = 200;
+            message = "OK";
         } catch (error) {
             console.log(error);
             console.log("Unable to create room!");
+            message = "Unable to create room!";
+            status = 400;
         }
-        res.send({
+        res.status(status).send({
             createdRoom: room,
             roomId: room[EntityId],
+            message: message,
         });
     });
 
-    server.put('/api/room/add_player', express.json(), async (req, res) => {
+    server.set('/api/room/add_player', express.json(), async (req, res) => {
         console.log(req.body);
         let {roomCode, username} = req.body;
-        let room;
+        let room, status, message;
         try {
             [room, player] = await addPlayerToRoomCode(roomCode, username);
+            status = 200;
+            message = "OK"
         } catch (error) {
-            console.log(error);
-            console.log("Unable to create room!");
+            console.log(error, "Unable to add player");
+            message = "Unable to add player";
+            status = 400;
         }
-        res.send({
+        res.status(status).send({
             createdRoom: room,
             roomId: room[EntityId],
+            message: message,
         });
     });
 
