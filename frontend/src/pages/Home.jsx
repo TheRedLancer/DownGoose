@@ -31,6 +31,8 @@ export default function Home() {
             } else {
                 console.log(`bad result`);
             }
+        } else {
+            console.log("FILL IN NAME OR ROOMCODE");
         }
     }
 

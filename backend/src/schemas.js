@@ -23,7 +23,7 @@ const playerSchema = new Schema('player', {
     cardColors: {type: 'string[]'}, // ['1', '0', '3', '2']
     currentRotation: {type: 'number'},
     ready: {type: 'boolean'},
-    action: {type: 'number'}, // 1: downgoose, 2: color, 3: waiting
+    action: {type: 'number'}, // 0: waiting, 1: downgoose, 2: color
     colorChoice: {type: 'number'},
     doneRotating: {type: 'boolean'},
 }, {
