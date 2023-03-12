@@ -4,34 +4,10 @@
 */
 import React, { useState } from 'react'
 import { useNavigate } from "react-router-dom";
+import * as server from "../server.js"
 import '../Home.css'
 
-const putRoom = async (roomCode) => {
-    const res = await fetch("http://localhost:3000/api/room/create", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            roomCode: roomCode
-        })
-    }).catch(error => console.log(error));
-    return res;
-}
 
-const putPlayerInRoom = async (roomCode, nickname) => {
-    const res = await fetch("http://localhost:3000/api/room/add_player", {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            roomCode: roomCode,
-            nickname: nickname,
-        })
-    }).catch(error => console.log(error));
-    return res;
-}
 
 export default function Home() {
     const [nickname, setNickname] = useState("");
@@ -40,13 +16,13 @@ export default function Home() {
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes = await putPlayerInRoom(roomCode, nickname);
+        let joinRes = await server.putPlayerInRoom(roomCode, nickname);
         if (joinRes.status != 200) {
-            console.log(`Error: could not join: ${res.message}`);
+            console.log(`Error: could not join: ${joinRes.message}`);
             return;
         }
         console.log("good result");
-        navigate(`/game/${state.roomCode}`, { state: joinRes.body });
+        navigate(`/game/${joinRes.body.roomCode}`, { state: joinRes.body });
     }
     
     const onHostButton = async () => {
@@ -55,7 +31,7 @@ export default function Home() {
             console.log("FILL IN NAME OR ROOMCODE");
             return;
         }
-        let createRes = await putRoom(roomCode);
+        let createRes = await server.putRoom(roomCode);
         console.log(createRes);
         if (createRes.status != 200) {
             console.log(`Error: could not create room ${roomCode}`);

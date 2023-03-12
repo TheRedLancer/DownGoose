@@ -8,6 +8,7 @@ import Card from '../components/Card';
 import GooseCardArea from '../components/GooseCardArea'
 import PlayerButtons from '../components/PlayerButtons';
 import colorCardData from '../colorCardData.json';
+import { useLocation } from "react-router-dom";
 
 const socket = io("http://localhost:8000/game", {
     autoConnect: true,
@@ -48,7 +49,6 @@ export default function Game(props) {
     }
 
     useEffect(() => {
-        console.log(room, roomId);
         socket.on('connect', () => {
             setIsConnected(true);
             socket.on('ping', () => {
