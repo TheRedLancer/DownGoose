@@ -7,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import * as server from "../server.js"
 import '../Home.css'
 
-
-
 export default function Home() {
     const [nickname, setNickname] = useState("");
     const [roomCode, setRoomCode] = useState("");
@@ -16,13 +14,15 @@ export default function Home() {
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes = await server.putPlayerInRoom(roomCode, nickname);
+        let joinRes = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
         if (joinRes.status != 200) {
-            console.log(`Error: could not join: ${joinRes.message}`);
+            console.log(`Error: could not join: ${roomCode}`, joinRes, "\nbody", await joinRes.json());
             return;
         }
-        console.log("good result");
-        navigate(`/game/${joinRes.body.roomCode}`, { state: joinRes.body });
+        joinRes.json().then(data => {
+            console.log("Sending data:", data);
+            navigate(`/game/${data.room.roomCode}`, { state: data });
+        });
     }
     
     const onHostButton = async () => {
@@ -37,7 +37,7 @@ export default function Home() {
             console.log(`Error: could not create room ${roomCode}`);
             return;
         }
-        joinRoom();
+        //joinRoom();
     }
 
     const onJoinButton = async () => {

@@ -12,7 +12,7 @@ await redis.connect();
 const gameRoomRepo = new Repository(SCHEMAS.gameRoomSchema, redis);
 await gameRoomRepo.createIndex();
 const playerRepo = new Repository(SCHEMAS.playerSchema, redis);
-await gameRoomRepo.createIndex();
+await playerRepo.createIndex();
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
@@ -22,26 +22,26 @@ export async function createGameRoom(roomCode) {
     let room = {
         version: 1,
         createTime: redis_now(),
-        playerJoined: undefined,
-        startGame: undefined,
+        playerJoined: -1,
+        startGame: -1,
         lastInteraction: redis_now(),
         roomCode: roomCode,
-        players: [],
-        activePlayer: undefined,
-        nextPlayer: undefined,
+        activePlayer: "",
+        nextPlayer: "",
         gameState: 'lobby',
     }
     let room_r = await gameRoomRepo.save(room);
-    await gameRoomRepo.expire(room_r[EntityId], 60*5);
+    //await gameRoomRepo.expire(room_r[EntityId], 60*5);
     return room_r;
 }
 
 export async function addPlayerToRoomCode(roomCode, nickname) {
-    let room = await gameRoomRepo.search().where('roomCode').equals(roomCode).return.first();
+    let room = await gameRoomRepo.search().where('roomCode').equals(roomCode).return.first()//.return.first()//.catch((e) => {console.log(e, "banana"); return null});
+    console.log("addPlayerToRoom:", room);
     if (!room) {
         throw new Error(`Room ${roomCode} does not exist`);
     }
-    return  addPlayerToRoom(room, nickname);
+    return addPlayerToRoom(room, nickname);
 }
 
 export async function addPlayerToRoom(room, nickname) {
@@ -51,21 +51,20 @@ export async function addPlayerToRoom(room, nickname) {
         roomCode: room.roomCode,
         joinTime: redis_now(),
         cardColors: [],
-        currentRotation: undefined,
+        currentRotation: -1,
         ready: false,
-        action: 0,
-        colorChoice: undefined,
-        doneRotating: undefined,
+        action: -1,
+        colorChoice: -1,
+        doneRotating: false,
     }
     let player_r = await playerRepo.save(player);
     console.log("Player_r:", player_r, "room", room);
-    await playerRepo.expire(player_r[EntityId], 60*5);
-    console.log(room.players);
-    room.players = [...room.players, player_r[EntityId]];
+    //await playerRepo.expire(player_r[EntityId], 60*5);
     room.lastInteraction = redis_now();
     room.playerJoined = redis_now();
     room = await gameRoomRepo.save(room);
-    return [await room, player_r];
+    console.log("after room", room);
+    return [room, player_r];
 }
 
 export default redis;

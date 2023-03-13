@@ -36,7 +36,7 @@ export default function Game(props) {
     const [calledColor, setCalledColor] = useState("orange");
     const [numberQuacked, setNumberQuacked] = useState(3);
 
-    const {room, roomId} = useLocation();
+    const {state} = useLocation();
 
     const notification = () => {
         if (activePlayer === playerNames[0]) {
@@ -47,6 +47,10 @@ export default function Game(props) {
             return "Called color: " + calledColor;
         }
     }
+
+    useEffect(() => {
+        console.log(state);
+    }, [state]);
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -82,6 +86,7 @@ export default function Game(props) {
             <h2>
                 Notification: {notification()}
             </h2>
+            <button onClick={() => {console.log(state)}}>Click</button>
             <GooseCardArea
                 playerNames={playerNames.slice(1, playerNames.length)}
                 playerCardRotations={playerCardRotations.slice(1, playerNames.length)}

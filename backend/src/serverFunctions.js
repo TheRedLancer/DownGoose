@@ -24,9 +24,8 @@ async function createRoomFromRequest(req) {
 
 async function addPlayerToRoomFromRequest(req) {
     let {roomCode, nickname} = req.body;
-    let room, status, message, player, data;
-    try {
-        [room, player] = await addPlayerToRoomCode(roomCode, nickname);
+    let status, message, data;
+    return await addPlayerToRoomCode(roomCode, nickname).then(([room, player]) => {
         status = 200;
         message = "OK";
         data = {
@@ -36,15 +35,16 @@ async function addPlayerToRoomFromRequest(req) {
             playerId: player[EntityId],
             message: message,
         }
-    } catch (error) {
+        return [status, data];
+    }).catch(error => {
         message = "Unable to add player";
         console.log(error, message);
         status = 400;
         data = {
             message: message,
         }
-    }
-    return [status, data]
+        return [status, data];
+    }); 
 }
 
 export {createRoomFromRequest, addPlayerToRoomFromRequest}
