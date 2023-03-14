@@ -11,7 +11,7 @@ import colorCardData from '../colorCardData.json';
 import { useLocation } from "react-router-dom";
 
 const socket = io("http://localhost:8000/game", {
-    autoConnect: true,
+    autoConnect: false,
     withCredentials: true,
 });
 
@@ -40,7 +40,7 @@ export default function Game(props) {
 
     const notification = () => {
         if (activePlayer === playerNames[0]) {
-            return "It's your turn!"
+            return "It's your turn!";
         } else if (calledColor === "quack") {
             return "Active Player Quacked!";
         } else {

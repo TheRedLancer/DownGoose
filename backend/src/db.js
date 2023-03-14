@@ -24,6 +24,7 @@ export async function createGameRoom(roomCode) {
         createTime: redis_now(),
         playerJoined: -1,
         startGame: -1,
+        players: [],
         lastInteraction: redis_now(),
         roomCode: roomCode,
         activePlayer: "",
@@ -62,6 +63,7 @@ export async function addPlayerToRoom(room, nickname) {
     //await playerRepo.expire(player_r[EntityId], 60*5);
     room.lastInteraction = redis_now();
     room.playerJoined = redis_now();
+    room.players.push(player_r[EntityId]);
     room = await gameRoomRepo.save(room);
     console.log("after room", room);
     return [room, player_r];

@@ -48,7 +48,7 @@ export default async function main() {
     playerRepo = new Repository(playerSchema, redis);
     await playerRepo.createIndex();
 
-    // addRoom("R1");
-    addPlayer("R1", "P1");
+    //addRoom("R1");
+    //addPlayer("R1", "P1");
     addPlayer("R1", "P2");
 }

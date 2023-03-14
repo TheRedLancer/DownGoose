@@ -6,6 +6,7 @@ const gameRoomSchema = new Schema('gameRoom', {
     playerJoined: {type: 'date'},
     startGame: {type: 'date'},
     lastInteraction: {type: 'date'},
+    players: {type: 'string[]'},
     roomCode: {type: 'string'},
     activePlayer: {type: 'string'},
     nextPlayer: {type: 'string'},
