@@ -39,7 +39,7 @@ async function addPlayerToRoomFromRequest(req) {
     }).catch(error => {
         message = "Unable to add player";
         console.log(error, message);
-        status = 400;
+        status = 404;
         data = {
             message: message,
         }

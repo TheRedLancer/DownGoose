@@ -1,4 +1,4 @@
-async function putRoom(roomCode) {
+async function putRoom(roomCode: string) {
     const res = await fetch("http://localhost:3000/api/room/create", {
         method: "PUT",
         headers: {
@@ -11,7 +11,7 @@ async function putRoom(roomCode) {
     return res;
 }
 
-async function putPlayerInRoom(roomCode, nickname) {
+async function putPlayerInRoom(roomCode: string, nickname: string) {
     const res = await fetch("http://localhost:3000/api/room/add_player", {
         method: "PUT",
         headers: {

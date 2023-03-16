@@ -4,14 +4,16 @@
 */
 import React from 'react'
 
+type props = {
+    active: boolean
+    rotation: number
+    image: string
+}
+
 /**
- * 
- * @param {Object} props 
- * @param props.active
- * @param props.rotation
- * @param props.image
+ * @param {props} props 
  */
-export default function Card(props) {
+export default function Card(props: props) {
     return (
         <div className='player-card'>
             <img

@@ -18,7 +18,9 @@ export const config = {
         "https://admin.socket.io"
     ],
     DEFAULT_EXPIRATION: 60 * 3,
-    ROOM_EXPIRATION: 60 * 60 * 24 * 7, // one week
+    HOUR_EXPIRATION: 60 * 60, // one hour
     SERVER_PORT: 3000,
     SOCKET_PORT: 8000,
+    REDIS_USER:"default",
+    REDIS_PASS:"PswBYDuLBJzrOytzhPa21hUM1ygZn7sZ"
 }

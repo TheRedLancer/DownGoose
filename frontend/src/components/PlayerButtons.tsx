@@ -2,16 +2,17 @@
     Author: Zach Burnaby
     Project: DownGoose
 */
-import React from 'react'
+type props = {
+    currentColor: number
+    calledColor: number
+    active: boolean
+    numberQuacked: number
+}
 
 /**
- * @param {Object} props
- * @param props.currentColor
- * @param props.calledColor
- * @param props.active
- * @param props.numberQuacked
+ * @param {props} props
  */
-export default function PlayerButtons(props) {
+export default function PlayerButtons(props: props) {
     return (
         <div>
             {props.active && 
@@ -27,19 +28,19 @@ export default function PlayerButtons(props) {
                     </div>
                 </div>
             }
-            {(!props.active && props.currentColor === props.calledColor) &&
+            {(!props.active && props.currentColor) &&
                 <div className='player-choice'>
                     <button>
                         Stay at {props.currentColor}
                     </button>
                 </div>
             }
-            {(!props.active && props.currentColor != props.calledColor && props.calledColor === "quack") &&
+            {(!props.active && props.currentColor != props.calledColor && props.calledColor === 4) &&
                 <div className='quack-message'>
                     Current player quacked {props.numberQuacked} times!
                 </div>
             }
-            {(!props.active && props.currentColor != props.calledColor && props.calledColor != "quack") &&
+            {(!props.active && props.currentColor != props.calledColor && props.calledColor != 4) &&
                 <div className='player-choice'>
                 <button>
                     Stay at {props.currentColor}

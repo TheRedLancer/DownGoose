@@ -7,7 +7,7 @@ $buildAssets = "$buildFolder\assets"
 $buildGoose = "$buildFolder\goose"
 
 npm i --production
-npx vite build
+npx build
 
 if (!(Test-Path $buildFolder -PathType Container)) {
     New-Item -ItemType Directory -Force -Path $buildFolder

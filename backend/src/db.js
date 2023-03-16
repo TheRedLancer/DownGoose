@@ -4,7 +4,11 @@ import * as SCHEMAS from './schemas.js'
 import { config } from './config.js';
 
 const redis = createClient({
-    url: 'redis://127.0.0.1:6379'
+    password: config.REDIS_PASS,
+    socket: {
+        host: 'redis-10211.c285.us-west-2-2.ec2.cloud.redislabs.com',
+        port: 10211
+    }
 });
 redis.on('error', (err) => console.log('Redis Client Error', err));
 await redis.connect();
@@ -32,7 +36,7 @@ export async function createGameRoom(roomCode) {
         gameState: 'lobby',
     }
     let room_r = await gameRoomRepo.save(room);
-    //await gameRoomRepo.expire(room_r[EntityId], 60*5);
+    await gameRoomRepo.expire(room_r[EntityId], config.HOUR_EXPIRATION);
     return room_r;
 }
 
@@ -60,7 +64,7 @@ export async function addPlayerToRoom(room, nickname) {
     }
     let player_r = await playerRepo.save(player);
     console.log("Player_r:", player_r, "room", room);
-    //await playerRepo.expire(player_r[EntityId], 60*5);
+    await playerRepo.expire(player_r[EntityId], config.HOUR_EXPIRATION);
     room.lastInteraction = redis_now();
     room.playerJoined = redis_now();
     room.players.push(player_r[EntityId]);

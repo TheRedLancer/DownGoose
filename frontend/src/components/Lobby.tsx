@@ -2,21 +2,19 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import React from 'react'
+type props = {
+    playerList: string[]
+    isHost: boolean
+    roomCode: string
+}
 
-export default function Lobby(props) {
-    /* Props
-      playerList
-      isHost
-      roomCode
-      onStartGame()
-    */
+export default function Lobby(props: props) {
     return (
         <div className='lobby'>
             <h1>
                 Join Code: {props.roomCode || "No room code"}
             </h1>
-            {(props.playerList || []).map((playerName) => 
+            {(props.playerList || []).map((playerName: string) => 
                 <li key={playerName}>
                     {playerName}
                 </li>

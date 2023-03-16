@@ -2,18 +2,20 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import React from 'react'
 import Card from './Card'
 import gooseCard from '/goose/v2/square-card-back.png'
 import utils from '../utils'
 
+type props = {
+    playerNames: string[]
+    playerCardRotations: number[]
+    activePlayer: string
+}
+
 /**
- * @param {Object} props
- * @param props.playerNames
- * @param props.playerCardRotations
- * @param props.activePlayer
+ * @param {props} props
  */
-export default function GooseCardArea(props) {
+export default function GooseCardArea(props: props) {
     return (
         <div>
             {utils.zip(props.playerNames, props.playerCardRotations).map((player) =>

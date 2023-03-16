@@ -14,7 +14,10 @@ export default function Home() {
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
+        let joinRes : void | Response = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
+        if (!joinRes) {
+            return;
+        }
         if (joinRes.status != 200) {
             console.log(`Error: could not join: ${roomCode}`, joinRes, "\nbody", await joinRes.json());
             return;
@@ -32,6 +35,9 @@ export default function Home() {
             return;
         }
         let createRes = await server.putRoom(roomCode);
+        if (!createRes) {
+            return;
+        }
         console.log(createRes);
         if (createRes.status != 200) {
             console.log(`Error: could not create room ${roomCode}`);
@@ -75,7 +81,7 @@ export default function Home() {
                         const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
                         setNickname(value)
                     }} 
-                    rows="1"
+                    rows={1}
                     maxLength={16}
                 />
                 <p>Join Code</p>
@@ -89,7 +95,7 @@ export default function Home() {
                         const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
                         setRoomCode(value);
                     }} 
-                    rows="1"
+                    rows={1}
                     maxLength={16}
                 />
                 <p></p>
