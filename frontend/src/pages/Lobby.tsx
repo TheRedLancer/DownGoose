@@ -55,44 +55,28 @@ export default function Lobby() {
             lobbySocket.volatile.emit('pong');
         }
 
-        function onPlayerJoin(otherPlayerId: string, otherPlayerName: string) {
-            console.log("Got player-join:", otherPlayerId);
-            console.log("oldPlayers", players);
-            if (players.findIndex(p => p.id === otherPlayerId ) != -1) {
-                return;
-            }
-            let newPlayers = [...players];
-            newPlayers.push({
-                nickname: otherPlayerName,
-                isReady: false,
-                id: otherPlayerId
-            });
-            console.log("newPlayers", newPlayers)
-            setPlayers(newPlayers);
+        function onJoin( playerData: LobbyPlayers ) {
+            setPlayers(playerData.filter(pd => pd.id !== player!.id));
         }
 
-        function onPlayerLeave(otherPlayerId: string) {
+        function onPlayerJoin(otherPlayerId: string, playerData: LobbyPlayers) {
+            console.log("Got player-join:", otherPlayerId);
+            setPlayers(playerData.filter(pd => pd.id !== player!.id));
+        }
+
+        function onPlayerLeave(otherPlayerId: string, playerData: LobbyPlayers) {
             console.log("Got player-leave:", otherPlayerId);
-            let newPlayers = [...players];
-            const otherPlayerIndex = players.findIndex(p => p.id === otherPlayerId );
-            delete newPlayers[otherPlayerIndex]
-            setPlayers(newPlayers);
+            setPlayers(playerData.filter(pd => pd.id !== player!.id));
         } 
 
-        function onPlayerReady(otherPlayerId: string) {
+        function onPlayerReady(otherPlayerId: string, playerData: LobbyPlayers) {
             console.log("Got player-ready:", otherPlayerId);
-            let newPlayers = [...players];
-            const otherPlayerIndex = players.findIndex(p => p.id === otherPlayerId );
-            newPlayers[otherPlayerIndex].isReady = true;
-            setPlayers(newPlayers);
+            setPlayers(playerData.filter(pd => pd.id !== player!.id));
         }
 
-        function onPlayerUnready(otherPlayerId: string) {
+        function onPlayerUnready(otherPlayerId: string, playerData: LobbyPlayers) {
             console.log("Got player-unready:", otherPlayerId);
-            let newPlayers = [...players];
-            const otherPlayerIndex = players.findIndex(p => p.id === otherPlayerId );
-            newPlayers[otherPlayerIndex].isReady = false;
-            setPlayers(newPlayers);
+            setPlayers(playerData.filter(pd => pd.id !== player!.id));
         }
 
         function onDisconnect() {
@@ -106,6 +90,7 @@ export default function Lobby() {
             lobbySocket.on('player-leave', onPlayerLeave);
             lobbySocket.on('player-unready', onPlayerUnready);
             lobbySocket.on('player-ready', onPlayerReady);
+            lobbySocket.on('on-join', onJoin);
             lobbySocket.on('disconnect', onDisconnect);
         }
     
@@ -116,6 +101,7 @@ export default function Lobby() {
             lobbySocket.off('player-leave', onPlayerLeave);
             lobbySocket.off('player-ready', onPlayerReady);
             lobbySocket.off('player-unready', onPlayerUnready);
+            lobbySocket.off('on-join', onJoin);
             lobbySocket.off('disconnect', onDisconnect);
         };
     }, [state, player, players]);

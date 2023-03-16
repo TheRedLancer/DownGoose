@@ -1,4 +1,4 @@
-import { createGameRoom, addPlayerToRoom, addPlayerToRoomCode } from './db.js'
+import { createGameRoom, addPlayerToRoom, addPlayerToRoomCode } from './dbFunctions.js'
 import { EntityId } from 'redis-om';
 
 async function createRoomFromRequest(req) {
