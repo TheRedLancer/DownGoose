@@ -14,7 +14,7 @@ export default function Home() {
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes : void | Response = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
+        let joinRes = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
         if (!joinRes) {
             return;
         }
