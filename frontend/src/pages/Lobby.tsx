@@ -40,10 +40,6 @@ export default function Lobby() {
     }, [state]);
 
     useEffect(() => {
-        console.log("Players were updated!", players);
-    }, [players])
-
-    useEffect(() => {
         function onConnect() {
             setIsConnected(true);
             console.log("Connected to:", state.roomId);

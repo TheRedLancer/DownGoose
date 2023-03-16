@@ -33,7 +33,7 @@
 }
 */
 
-interface Player {
+type Player = {
     nickname: string,
     joinTime: number,
     cardColors: number[],
@@ -45,7 +45,7 @@ interface Player {
     [key: string]: any
 }
 
-interface LobbyPlayer {
+type LobbyPlayer = {
     nickname: string,
     id: string,
     isReady: boolean,

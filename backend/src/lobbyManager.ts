@@ -5,7 +5,7 @@ const LobbyManager = {
     /**
      * @param {Namespace} lobbyIO 
      */
-    listen: (lobbyIO) => {
+    listen: (lobbyIO: Namespace) => {
         lobbyIO.on('connection', async socket => {
             console.log(socket.id, "connected to lobby");
             
@@ -16,10 +16,9 @@ const LobbyManager = {
                 socket.emit('on-join', data);
                 socket.to(roomId).emit('player-join', 
                     playerId,
-                    playerName,
                     data
                 );
-            });
+            }); 
 
             socket.on('leave-room', async (playerId, playerName, roomId) => {
                 console.log(socket.id , "emit player-leave", roomId);

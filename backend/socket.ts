@@ -5,7 +5,7 @@ import LobbyManager from "./src/lobbyManager.js";
 import { instrument } from '@socket.io/admin-ui';
 import db from "./src/db.js";
 
-const port = process.env.SOCKET_PORT || 8000;
+const port = config.SOCKET_PORT || 8000;
 
 export default function startSocket() {
 
