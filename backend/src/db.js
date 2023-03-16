@@ -33,7 +33,7 @@ export async function createGameRoom(roomCode) {
         roomCode: roomCode,
         activePlayer: "",
         nextPlayer: "",
-        gameState: 'lobby',
+        gameState: 1,
     }
     let room_r = await gameRoomRepo.save(room);
     await gameRoomRepo.expire(room_r[EntityId], config.HOUR_EXPIRATION);
@@ -42,7 +42,8 @@ export async function createGameRoom(roomCode) {
 
 export async function addPlayerToRoomCode(roomCode, nickname) {
     let room = await gameRoomRepo.search().where('roomCode').equals(roomCode).return.first()//.return.first()//.catch((e) => {console.log(e, "banana"); return null});
-    console.log("addPlayerToRoom:", room);
+    console.log("addPlayerToRoom");
+    //console.log("addPlayerToRoom:", room);
     if (!room) {
         throw new Error(`Room ${roomCode} does not exist`);
     }
@@ -63,13 +64,13 @@ export async function addPlayerToRoom(room, nickname) {
         doneRotating: false,
     }
     let player_r = await playerRepo.save(player);
-    console.log("Player_r:", player_r, "room", room);
+    //console.log("Player_r:", player_r, "room", room);
     await playerRepo.expire(player_r[EntityId], config.HOUR_EXPIRATION);
     room.lastInteraction = redis_now();
     room.playerJoined = redis_now();
     room.players.push(player_r[EntityId]);
     room = await gameRoomRepo.save(room);
-    console.log("after room", room);
+    //console.log("after room", room);
     return [room, player_r];
 }
 

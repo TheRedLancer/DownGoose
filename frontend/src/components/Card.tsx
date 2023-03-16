@@ -2,12 +2,11 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import React from 'react'
-
 type props = {
     active: boolean
     rotation: number
     image: string
+    [key: string]: any
 }
 
 /**
@@ -16,6 +15,7 @@ type props = {
 export default function Card(props: props) {
     return (
         <div className='player-card'>
+            {props.image && 
             <img
                 style={{
                     transform: `rotate(${(props.rotation % 4) * 90}deg)` 
@@ -25,7 +25,7 @@ export default function Card(props: props) {
                 alt="Card"
                 width={50}
                 height={50} 
-            />
+            />}
         </div>
     )  
 }

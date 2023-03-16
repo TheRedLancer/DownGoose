@@ -1,6 +1,6 @@
 const utils = {
-    zip: function (first: Array<any>, second: Array<any>) {
-        let out : Array<[any, any]> = []
+    zip: function<T, G> (first: Array<T>, second: Array<G>) {
+        let out : Array<[T, G]> = []
         for (let i=0; i < first.length; ++i) {
             out.push([first[i], second[i]]);
         }

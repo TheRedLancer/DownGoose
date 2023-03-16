@@ -23,17 +23,19 @@ export default function startServer() {
 
     server.put('/api/room/create', express.json(), async (req, res) => {
         // TODO: Add error handling for if room already exists
-        console.log("create body", req.body);
+        //console.log("create body", req.body);
+        console.log("create");
         let [status, data] = await createRoomFromRequest(req);
         res.status(status).send(data);
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     });
 
     server.put('/api/room/add_player', express.json(), async (req, res) => {
-        console.log("add_player body", req.body);
+        // console.log("add_player body", req.body);
+        console.log("add_player");
         try {
             let [status, data] = await addPlayerToRoomFromRequest(req);
-            console.log("status:", status, "data:", data);
+            //console.log("status:", status, "data:", data);
             res.status(status).send(data);
         } catch (error) {
             console.log(error);

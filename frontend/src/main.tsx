@@ -11,6 +11,7 @@ import {
 import './index.css'
 import Game from './pages/Game';
 import Home from './pages/Home';
+import Lobby from './pages/Lobby';
 import ErrorPage from './pages/error-page';
 
 const router = createBrowserRouter([
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home/>,
         errorElement: <ErrorPage/>
+    },
+    {
+        path: 'game/:roomCode/lobby',
+        element: <Lobby />
     },
     {
         path: 'game/:roomCode',

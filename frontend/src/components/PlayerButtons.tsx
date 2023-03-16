@@ -7,6 +7,7 @@ type props = {
     calledColor: number
     active: boolean
     numberQuacked: number
+    [key: string]: any
 }
 
 /**

@@ -13,7 +13,7 @@ async function createRoomFromRequest(req) {
         message = "Unable to create room!";
         status = 400;
     }
-    console.log(message);
+    //console.log(message);
     let data = {
         room: room,
         roomId: room[EntityId],
@@ -29,9 +29,9 @@ async function addPlayerToRoomFromRequest(req) {
         status = 200;
         message = "OK";
         data = {
-            room: room,
             roomId: room[EntityId],
-            player: player,
+            roomCode: room.roomCode,
+            playerName: player.nickname,
             playerId: player[EntityId],
             message: message,
         }

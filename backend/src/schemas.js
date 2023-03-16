@@ -10,7 +10,7 @@ const gameRoomSchema = new Schema('gameRoom', {
     roomCode: {type: 'string'},
     activePlayer: {type: 'string'},
     nextPlayer: {type: 'string'},
-    gameState: {type: 'string'},
+    gameState: {type: 'number'},
 }, {
     dataStructure: 'JSON'
 })

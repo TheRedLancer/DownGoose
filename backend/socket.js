@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
-import { customAlphabet } from 'nanoid/non-secure';
 import { config } from "./src/config.js";
 import RoomManager from "./src/roomManager.js";
+import LobbyManager from "./src/lobbyManager.js";
 import { instrument } from '@socket.io/admin-ui';
 import db from "./src/db.js";
 
@@ -16,11 +16,13 @@ const io = new Server(port, {
     }
 });
 
+LobbyManager.listen(io.of("/lobby"));
+
 const gameIO = io.of("/game");
 gameIO.on('connection', async socket => {
     console.log(socket.id, "connected");
 
-    socket.on("ping", () => {
+    socket.on("ping", async () => {
         console.log(socket.id, "got ping");
         socket.volatile.emit("pong", socket.id);
         console.log(socket.id, "emit pong")
