@@ -20,7 +20,7 @@ export default function Lobby() {
     useEffect(() => {
         if (!parsedLocationState) {
             setPlayer({
-                nickname: state.playerName,
+                nickname: state.player.nickname,
                 id: state.playerId,
                 isReady: false,
             });
@@ -30,8 +30,8 @@ export default function Lobby() {
 
     useEffect(() => {
         // no-op if the socket is already connected
-        if (state.roomCode && state.roomId) {
-            console.log("Attempting to connect to ", state.roomCode);
+        if (state.room.roomCode && state.roomId) {
+            console.log("Attempting to connect to ", state.room.roomCode);
             lobbySocket.connect();
         }
         return () => {
@@ -112,13 +112,13 @@ export default function Lobby() {
             return;
         }
         if (player.isReady) {
-            lobbySocket.emit('unready', player.id, player.nickname, state.roomId);
+            lobbySocket.emit('unready', player.id, state.roomId);
             let newPlayer = player;
             newPlayer.isReady = false;
             setIsReady(newPlayer.isReady);
             setPlayer(newPlayer)
         } else {
-            lobbySocket.emit('ready', player.id, player.nickname, state.roomId);
+            lobbySocket.emit('ready', player.id, state.roomId);
             let newPlayer = player;
             newPlayer.isReady = true;
             setIsReady(newPlayer.isReady);
@@ -129,7 +129,7 @@ export default function Lobby() {
     return (
         <div className='lobby'>
             <h1>
-                Join Code: {state.roomCode || "No room code"}
+                Join Code: {state.room.roomCode || "No room code"}
             </h1>
             <h3>You: {player?.nickname}</h3>
             <h2>Are you ready? {player?.isReady.toString()}</h2>

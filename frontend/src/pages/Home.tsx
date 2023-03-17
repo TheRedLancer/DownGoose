@@ -24,7 +24,7 @@ export default function Home() {
         }
         joinRes.json().then(data => {
             console.log("Sending data:", data);
-            navigate(`/game/${data.roomCode}/lobby`, { state: data });
+            navigate(`/game/${data.room.roomCode}/lobby`, { state: data });
         });
     }
     

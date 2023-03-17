@@ -1,6 +1,6 @@
-import { gameRoomRepo, playerRepo } from "./db";
 import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
-import { config } from './config';
+import { gameRoomRepo, playerRepo } from "./db.js";
+import { config } from './config.js';
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
@@ -16,8 +16,6 @@ export async function createGameRoom(roomCode : string) {
         lastInteraction: redis_now(),
         roomCode: roomCode,
         activePlayer: "",
-        nextPlayer: "",
-        gameState: 1,
     }
     let room_r = await gameRoomRepo.save(room);
     if (!room_r[EntityId]) {
@@ -60,9 +58,9 @@ export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[
     room.playerJoined = redis_now();
     // @ts-ignore
     room.players.push(player_r[EntityId]);
-    room = await gameRoomRepo.save(room);
+    let room_r = await gameRoomRepo.save(room);
     //console.log("after room", room);
-    return [room, player_r];
+    return [room_r, player_r];
 }
 
 export async function getLobbyData(roomId: string) {
@@ -70,8 +68,8 @@ export async function getLobbyData(roomId: string) {
     if (!room) {
         throw new Error("Room does not exist");
     }
-    let rPlayer : any = room.players;
-    let players = await rPlayer.map(async (id: string) => {
+    // @ts-ignore
+    let players = await room.players.map(async (id: string) => {
         let player = await playerRepo.fetch(id);
         let player_data = {
             nickname: player.nickname,
@@ -90,4 +88,51 @@ export async function readyPlayer(playerId: string, isReady: boolean) {
     }
     player.ready = isReady;
     await playerRepo.save(player);
+}
+
+export async function startGame(roomId: string) {
+    let room = await gameRoomRepo.fetch(roomId);
+    if (!room) {
+        throw new Error("Room does not exist");
+    }
+    // Player
+    // cardColors: {type: 'string[]'}, // ['1', '0', '3', '2']
+    // currentRotation: {type: 'number'},
+
+    // Room
+    // startGame: {type: 'date'},
+    // lastInteraction: {type: 'date'},
+    // activePlayer: {type: 'string'},
+    // gameState: {type: 'number'},
+
+    // @ts-ignore room.players is going to be a string[] if it exists
+    let players = room.players.map(async (playerId: string) => {
+        let player = await playerRepo.fetch(playerId);
+        // Give each player a card
+        player.cardColors = generateCard();
+        // Set each players card's rotation
+        player.currentRotation = Math.floor(Math.random() * 4);
+        return await playerRepo.save(player);
+    });
+    // Set start game time
+    room.startGame = redis_now();
+    room.lastInteraction = redis_now();
+    room.gameState = 2;
+    // Choose random start player
+    // @ts-ignore room.players is going to be a string[] if it exists
+    room.activePlayer = Math.floor(Math.random() * room.players.length);
+    return gameState(room, players);
+}
+
+function generateCard(): string[] {
+    let card = ['0', '1', '2', '3'];
+    for (let i = card.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (card.length));
+        [card[i], card[j]] = [card[j], card[i]];
+    }
+    return card;
+}
+
+function gameState(room: Entity, players: Entity) {
+
 }

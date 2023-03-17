@@ -1,7 +1,7 @@
 import { createClient } from 'redis'
 import {Repository, EntityId} from 'redis-om';
-import * as SCHEMAS from './schemas'
-import { config } from './config';
+import * as SCHEMAS from './schemas.js'
+import { config } from './config.js';
 
 const redis = createClient({
     password: config.REDIS_PASS,
