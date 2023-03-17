@@ -1,6 +1,7 @@
 import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
 import { gameRoomRepo, playerRepo } from "./db.js";
 import { config } from './config.js';
+import { GameState } from "../global.js";
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
@@ -133,6 +134,18 @@ function generateCard(): string[] {
     return card;
 }
 
-function gameState(room: Entity, players: Entity) {
-
+function gameState(room: Entity, players: Entity): GameState{
+        return {
+        roomId: "string",
+        roomCode: "string",
+        players: [{
+            nickname: "string",
+            cardColors: ["0", "1", "2", "3"],
+            currentRotation: 0,
+            colorChoice: 0,
+            doneRotating: false,
+            id: "string",
+        }],
+        activePlayer: "string"
+    }
 }

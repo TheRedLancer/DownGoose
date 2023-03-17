@@ -24,7 +24,7 @@ type RoomResponse = {
 
 type GamePlayer = {
     nickname: string,
-    cardColors: number[],
+    cardColors: string[],
     currentRotation: number,
     colorChoice: number,
     doneRotating: boolean,
@@ -34,6 +34,7 @@ type GamePlayer = {
 
 type GameState = {
     roomId: string,
+    roomCode: string,
     players: GamePlayer[]
-
+    activePlayer: string
 }
