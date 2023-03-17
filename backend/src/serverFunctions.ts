@@ -1,7 +1,9 @@
 import { createGameRoom, addPlayerToRoom, addPlayerToRoomCode } from './dbFunctions.js'
-import { EntityId } from 'redis-om';
+import { EntityId, Entity } from 'redis-om';
+import { Request } from 'express';
+import { PlayerResponse, RoomResponse } from '../global.js';
 
-async function createRoomFromRequest(req) {
+async function createRoomFromRequest(req: Request) : Promise<[number, RoomResponse]> {
     let {roomCode} = req.body;
     let room, status, message;
     try {
@@ -14,6 +16,13 @@ async function createRoomFromRequest(req) {
         status = 400;
     }
     //console.log(message);
+    if (!room) {
+        return [500, {
+            room: null,
+            roomId: null,
+            message: "Unable to create Room"
+        }];
+    }
     let data = {
         room: room,
         roomId: room[EntityId],
@@ -22,29 +31,46 @@ async function createRoomFromRequest(req) {
     return [status, data]
 }
 
-async function addPlayerToRoomFromRequest(req) {
+async function addPlayerToRoomFromRequest(req: Request) {
     let {roomCode, nickname} = req.body;
-    let status, message, data;
-    return await addPlayerToRoomCode(roomCode, nickname).then(([room, player]) => {
-        status = 200;
-        message = "OK";
-        data = {
-            roomId: room[EntityId],
-            roomCode: room.roomCode,
-            playerName: player.nickname,
-            playerId: player[EntityId],
-            message: message,
-        }
-        return [status, data];
-    }).catch(error => {
-        message = "Unable to add player";
-        console.log(error, message);
-        status = 404;
-        data = {
-            message: message,
-        }
-        return [status, data];
-    }); 
+    let status = 0
+    let data: PlayerResponse = {
+        room: undefined,
+        roomId: undefined,
+        player: undefined,
+        playerId: undefined,
+        message: "",
+    };
+    let res = await addPlayerToRoomCode(roomCode, nickname);
+    if (!res) {
+        return [500, {
+            room: null,
+            roomId: null,
+            player: null,
+            playerId: null,
+            message: "server error"
+        }];
+    }
+    if (!res[0] || !res[1]) {
+        return [500, {
+            room: null,
+            roomId: null,
+            player: null,
+            playerId: null,
+            message: "server error"
+        }];
+    }
+    let room = res[0];
+    let player = res[1];
+    status = 200;
+    data = {
+        room: room,
+        roomId: room[EntityId],
+        player: player,
+        playerId: player[EntityId],
+        message: "OK",
+    }
+    return [status, data];
 }
 
 export {createRoomFromRequest, addPlayerToRoomFromRequest}

@@ -2,8 +2,8 @@ import express from 'express'
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import path from 'path';
-import { config } from './src/config.js';
-import { createRoomFromRequest, addPlayerToRoomFromRequest } from './src/serverFunctions.js';
+import { config } from './config.js';
+import { createRoomFromRequest, addPlayerToRoomFromRequest } from './serverFunctions.js';
 
 const port = process.env.SERVER_PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -35,8 +35,13 @@ export default function startServer() {
         console.log("add_player");
         try {
             let [status, data] = await addPlayerToRoomFromRequest(req);
-            //console.log("status:", status, "data:", data);
-            res.status(status).send(data);
+            if (typeof status === "number") {
+                //console.log("status:", status, "data:", data);
+                res.status(status).send(data);
+            } else {
+                res.status(500).send(data);
+            }
+            
         } catch (error) {
             console.log(error);
             res.status(400).send({});

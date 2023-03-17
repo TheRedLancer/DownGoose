@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { getLobbyData, readyPlayer } from "./dbFunctions.js"
+import { getLobbyData, readyPlayer } from "./dbFunctions"
 
 const LobbyManager = {
     /**

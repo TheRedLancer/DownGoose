@@ -1,3 +1,5 @@
+import { Entity } from "redis-om";
+
 type Player = {
     nickname: string,
     joinTime: number,
@@ -17,3 +19,17 @@ type LobbyPlayer = {
 }
 
 type LobbyPlayers = Array<LobbyPlayer>;
+
+type PlayerResponse = {
+    room: Entity | null | undefined,
+    roomId: string | null | undefined,
+    player: Entity | null | undefined,
+    playerId: string | null | undefined,
+    message: string,
+}
+
+type RoomResponse = {
+    room: Entity | null | undefined,
+    roomId: string | null | undefined,
+    message: string,
+}

@@ -1,12 +1,12 @@
-import { gameRoomRepo, playerRepo } from "./db.js";
-import { EntityId } from "redis-om";
-import { config } from './config.js';
+import { gameRoomRepo, playerRepo } from "./db";
+import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
+import { config } from './config';
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
 }
 
-export async function createGameRoom(roomCode) {
+export async function createGameRoom(roomCode : string) {
     let room = {
         version: 1,
         createTime: redis_now(),
@@ -20,11 +20,14 @@ export async function createGameRoom(roomCode) {
         gameState: 1,
     }
     let room_r = await gameRoomRepo.save(room);
+    if (!room_r[EntityId]) {
+        return null;
+    }
     await gameRoomRepo.expire(room_r[EntityId], config.HOUR_EXPIRATION);
     return room_r;
 }
 
-export async function addPlayerToRoomCode(roomCode, nickname) {
+export async function addPlayerToRoomCode(roomCode: string, nickname: string) {
     let room = await gameRoomRepo.search().where('roomCode').equals(roomCode).return.first()//.return.first()//.catch((e) => {console.log(e, "banana"); return null});
     console.log("addPlayerToRoom");
     //console.log("addPlayerToRoom:", room);
@@ -34,7 +37,7 @@ export async function addPlayerToRoomCode(roomCode, nickname) {
     return addPlayerToRoom(room, nickname);
 }
 
-export async function addPlayerToRoom(room, nickname) {
+export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[(Entity | null), (Entity | null)]> {
     let player = {
         version: 1,
         nickname: nickname,
@@ -47,23 +50,28 @@ export async function addPlayerToRoom(room, nickname) {
         colorChoice: -1,
         doneRotating: false,
     }
-    let player_r = await playerRepo.save(player);
+    let player_r: Entity = await playerRepo.save(player);
     //console.log("Player_r:", player_r, "room", room);
+    if (!player_r[EntityId]) {
+        return [room, null];
+    }
     await playerRepo.expire(player_r[EntityId], config.HOUR_EXPIRATION);
     room.lastInteraction = redis_now();
     room.playerJoined = redis_now();
+    // @ts-ignore
     room.players.push(player_r[EntityId]);
     room = await gameRoomRepo.save(room);
     //console.log("after room", room);
     return [room, player_r];
 }
 
-export async function getLobbyData(roomId) {
+export async function getLobbyData(roomId: string) {
     let room = await gameRoomRepo.fetch(roomId);
     if (!room) {
-        throw new Error("Room does not exist!");
+        throw new Error("Room does not exist");
     }
-    let players = await room.players.map(async id => {
+    let rPlayer : any = room.players;
+    let players = await rPlayer.map(async (id: string) => {
         let player = await playerRepo.fetch(id);
         let player_data = {
             nickname: player.nickname,
@@ -75,7 +83,7 @@ export async function getLobbyData(roomId) {
     return Promise.all(players);
 }
 
-export async function readyPlayer(playerId, isReady) {
+export async function readyPlayer(playerId: string, isReady: boolean) {
     let player = await playerRepo.fetch(playerId);
     if (!player) {
         throw new Error("Player does not exist");

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-function getDefault(value, defaultValue) {
+function getDefault<T>(value: T, defaultValue: T) {
     if (!value || value === 'undefined') {
         return defaultValue;
     }

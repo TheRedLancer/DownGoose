@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["ESNext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -13,8 +13,9 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": false,
+    "outDir": "./dist"
   },
-  "include": ["src", "global.d.ts"]
+  "include": ["src", "global.d.ts"],
 //   "references": [{ "path": "./tsconfig.node.json" }]
 }
