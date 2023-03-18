@@ -1,5 +1,5 @@
 import { Namespace, Socket } from "socket.io";
-import { getLobbyData, readyPlayer, startGame } from "./dbFunctions.js";
+import { gameState, getLobbyData, readyPlayer, startGame } from "./dbFunctions.js";
 
 const LobbyManager = {
     /**
@@ -49,8 +49,15 @@ const LobbyManager = {
 
             socket.on('start-game', async (playerId: string, roomId: string) => {
                 console.log(socket.id , "emit start-game", roomId);
-                await startGame(roomId);
-            }) 
+                let state = await Promise.all(await startGame(roomId));
+                console.log("DB state:", state);
+                let gS = gameState(await state[0], await state[1]);
+                console.log("GameState:", gS);
+                socket.in(roomId).emit('game-start',
+                    playerId,
+                    gS
+                );
+            });
 
             socket.on("disconnect", () => {
                 console.log(socket.id, "disconnected");

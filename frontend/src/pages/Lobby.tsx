@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import { useLocation } from "react-router-dom"
+import { LobbyPlayer, LobbyPlayers, GameState } from '../../global';
 import PlayerReadyDisplay from '../components/PlayerReadyDisplay';
 import { lobbySocket } from '../socket';
 
@@ -79,6 +80,16 @@ export default function Lobby() {
             console.log("got disconnect");
             setIsConnected(false);
         }
+
+        // function onGameStart(playerId: string, gameState: GameState) {
+        //     console.log("Hello!")
+        //     console.log(gameState);
+        // }
+        function onGameStart(p: any, q: any) {
+            console.log("gotGameStart");
+            console.log(p, q);
+        }
+
         if (player) {
             lobbySocket.on('connect', onConnect);
             lobbySocket.on('ping', onPing);
@@ -87,6 +98,7 @@ export default function Lobby() {
             lobbySocket.on('player-unready', onPlayerUnready);
             lobbySocket.on('player-ready', onPlayerReady);
             lobbySocket.on('on-join', onJoin);
+            lobbySocket.on('game-start', onGameStart);
             lobbySocket.on('disconnect', onDisconnect);
         }
     
@@ -98,6 +110,7 @@ export default function Lobby() {
             lobbySocket.off('player-ready', onPlayerReady);
             lobbySocket.off('player-unready', onPlayerUnready);
             lobbySocket.off('on-join', onJoin);
+            lobbySocket.off('game-start', onGameStart);
             lobbySocket.off('disconnect', onDisconnect);
         };
     }, [state, player, players]);
@@ -125,6 +138,18 @@ export default function Lobby() {
             setPlayer(newPlayer)
         }
     }
+    
+    function startGame() {
+        if (!isConnected) {
+            console.log("Not Connected!");
+            return;
+        }
+        if (!player) {
+            console.log("no player");
+            return;
+        }
+        lobbySocket.emit('start-game', player.id, state.roomId);
+    }
 
     return (
         <div className='lobby'>
@@ -134,6 +159,7 @@ export default function Lobby() {
             <h3>You: {player?.nickname}</h3>
             <h2>Are you ready? {player?.isReady.toString()}</h2>
             <button onClick={() => {toggleReady()}}>{isReady ? "Unready" : "Ready Up"}</button>
+            <button onClick={() => {startGame()}}>Start game!</button>
             <PlayerReadyDisplay players={players} />
         </div>
     )

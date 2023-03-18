@@ -1,7 +1,7 @@
 import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
 import { gameRoomRepo, playerRepo } from "./db.js";
 import { config } from './config.js';
-import { GameState } from "../global.js";
+import { GamePlayer, GameState } from "../global.js";
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
@@ -115,6 +115,7 @@ export async function startGame(roomId: string) {
         player.currentRotation = Math.floor(Math.random() * 4);
         return await playerRepo.save(player);
     });
+    console.log("Game room players: ", await Promise.all(players));
     // Set start game time
     room.startGame = redis_now();
     room.lastInteraction = redis_now();
@@ -122,7 +123,10 @@ export async function startGame(roomId: string) {
     // Choose random start player
     // @ts-ignore room.players is going to be a string[] if it exists
     room.activePlayer = Math.floor(Math.random() * room.players.length);
-    return gameState(room, players);
+
+    let room_r = await gameRoomRepo.save(room);
+    console.log("Game room", await room_r);
+    return [room_r, Promise.all(players)];
 }
 
 function generateCard(): string[] {
@@ -134,18 +138,36 @@ function generateCard(): string[] {
     return card;
 }
 
-function gameState(room: Entity, players: Entity): GameState{
-        return {
+/**
+ * Parse database items into gamestate to send to the frontend
+ * @param room
+ * @param players 
+ * @returns 
+ */
+export function gameState(room: Entity, players: Entity[]): GameState {
+    let state: GameState = {
         roomId: "string",
         roomCode: "string",
-        players: [{
-            nickname: "string",
-            cardColors: ["0", "1", "2", "3"],
-            currentRotation: 0,
-            colorChoice: 0,
-            doneRotating: false,
-            id: "string",
-        }],
+        players: [],
         activePlayer: "string"
     }
+
+    state.players = players.map((player: Entity): GamePlayer => {
+        return {
+            //@ts-ignore
+            nickname: player.nickname,
+            //@ts-ignore
+            cardColors: player.cardColors,
+            //@ts-ignore
+            currentRotation: player.currentRotation,
+            //@ts-ignore
+            colorChoice: player.colorChoice,
+            //@ts-ignore
+            doneRotating: player.doneRotating,
+            //@ts-ignore
+            id: player[EntityId]
+        }
+    });
+
+    return state;
 }
