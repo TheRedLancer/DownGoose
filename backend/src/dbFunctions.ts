@@ -115,17 +115,17 @@ export async function startGame(roomId: string) {
         player.currentRotation = Math.floor(Math.random() * 4);
         return await playerRepo.save(player);
     });
-    console.log("Game room players: ", await Promise.all(players));
+    //console.log("Game room players: ", await Promise.all(players));
     // Set start game time
     room.startGame = redis_now();
     room.lastInteraction = redis_now();
     room.gameState = 2;
     // Choose random start player
     // @ts-ignore room.players is going to be a string[] if it exists
-    room.activePlayer = Math.floor(Math.random() * room.players.length);
+    room.activePlayer = room.players[Math.floor(Math.random() * room.players.length)];
 
     let room_r = await gameRoomRepo.save(room);
-    console.log("Game room", await room_r);
+    //console.log("Game room", await room_r);
     return [room_r, Promise.all(players)];
 }
 
@@ -146,26 +146,24 @@ function generateCard(): string[] {
  */
 export function gameState(room: Entity, players: Entity[]): GameState {
     let state: GameState = {
-        roomId: "string",
-        roomCode: "string",
+        roomId: "empty",
+        roomCode: "empty",
         players: [],
-        activePlayer: "string"
+        activePlayer: "empty"
+    }
+    if (room[EntityId] && room.roomCode && typeof room.roomCode === 'string' && room.activePlayer && typeof room.activePlayer === 'string') {
+        state = {
+            roomId: room[EntityId],
+            roomCode: room.roomCode,
+            players: [],
+            activePlayer: room.activePlayer
+        }
     }
 
     state.players = players.map((player: Entity): GamePlayer => {
         return {
             //@ts-ignore
-            nickname: player.nickname,
-            //@ts-ignore
-            cardColors: player.cardColors,
-            //@ts-ignore
-            currentRotation: player.currentRotation,
-            //@ts-ignore
-            colorChoice: player.colorChoice,
-            //@ts-ignore
-            doneRotating: player.doneRotating,
-            //@ts-ignore
-            id: player[EntityId]
+            nickname: player.nickname, cardColors: player.cardColors, currentRotation: player.currentRotation, colorChoice: player.colorChoice, doneRotating: player.doneRotating, id: player[EntityId]
         }
     });
 

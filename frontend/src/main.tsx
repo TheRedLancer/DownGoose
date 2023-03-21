@@ -21,11 +21,11 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage/>
     },
     {
-        path: 'game/:roomCode/lobby',
+        path: '/:roomCode/lobby',
         element: <Lobby />
     },
     {
-        path: 'game/:roomCode',
+        path: '/:roomCode/game',
         element: <Game />
     },
 ]);

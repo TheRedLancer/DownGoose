@@ -50,7 +50,8 @@ const LobbyManager = {
             socket.on('start-game', async (playerId: string, roomId: string) => {
                 console.log(socket.id , "emit start-game", roomId);
                 let state = await Promise.all(await startGame(roomId));
-                let gS = gameState(await state[0], await state[1]);
+                let gS = gameState(state[0], state[1]);
+                console.log("Game state on start~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", gS);
                 lobbyIO.in(roomId).emit('game-start',
                     playerId,
                     gS

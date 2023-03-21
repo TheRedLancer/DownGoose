@@ -4,7 +4,7 @@
 */
 type props = {
     active: boolean
-    rotation: number
+    rotation: number | undefined
     image: string
     [key: string]: any
 }
@@ -13,12 +13,14 @@ type props = {
  * @param {props} props 
  */
 export default function Card(props: props) {
+    let rotation = props.rotation || 0;
+
     return (
         <div className='player-card'>
             {props.image && 
             <img
                 style={{
-                    transform: `rotate(${(props.rotation % 4) * 90}deg)` 
+                    transform: `rotate(${(rotation % 4) * 90}deg)` 
                 }}
                 className={"card" + props.active ? "active" : ""}
                 src={props.image} 

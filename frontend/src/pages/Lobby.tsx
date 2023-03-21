@@ -2,10 +2,9 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-
 import { useState, useEffect } from 'react'
-import { useLocation } from "react-router-dom"
-import { LobbyPlayer, LobbyPlayers, GameState } from '../../global';
+import { useLocation, useNavigate } from "react-router-dom"
+import { LobbyPlayer, LobbyPlayers, GameState } from '../global';
 import PlayerReadyDisplay from '../components/PlayerReadyDisplay';
 import { lobbySocket } from '../socket';
 
@@ -17,6 +16,7 @@ export default function Lobby() {
     const [isReady, setIsReady] = useState(false);
 
     const {state} = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!parsedLocationState) {
@@ -81,13 +81,14 @@ export default function Lobby() {
             setIsConnected(false);
         }
 
-        // function onGameStart(playerId: string, gameState: GameState) {
-        //     console.log("Hello!")
-        //     console.log(gameState);
-        // }
-        function onGameStart(p: any, q: any) {
+        function onGameStart(playerId: string, gameState: GameState) {
             console.log("gotGameStart");
-            console.log(p, q);
+            let data = {
+                gameState: gameState,
+                player: player
+            }
+            console.log(data);
+            navigate(`/${gameState.roomCode}/game`, { state: data });
         }
 
         if (player) {

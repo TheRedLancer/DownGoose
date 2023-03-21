@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import path from 'path';
@@ -21,7 +21,7 @@ export default function startServer() {
     server.use(cors(corsOptions));
     server.use(express.static(path.join(__dirname, 'public')));
 
-    server.put('/api/room/create', express.json(), async (req, res) => {
+    server.put('/api/room/create', express.json(), async (req: Request, res: Response) => {
         // TODO: Add error handling for if room already exists
         //console.log("create body", req.body);
         console.log("create");
@@ -30,7 +30,7 @@ export default function startServer() {
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     });
 
-    server.put('/api/room/add_player', express.json(), async (req, res) => {
+    server.put('/api/room/add_player', express.json(), async (req: Request, res: Response) => {
         // console.log("add_player body", req.body);
         console.log("add_player");
         try {
@@ -49,7 +49,7 @@ export default function startServer() {
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     });
 
-    server.get('*', (req, res) => {
+    server.get('*', (req: Request, res: Response) => {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
 

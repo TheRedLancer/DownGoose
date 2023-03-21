@@ -2,11 +2,12 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
+import { GamePlayer } from '../global'
 import Card from './Card'
 import gooseCard from '/goose/gooseBack.png'
 
 type props = {
-    players: Player[]
+    players: GamePlayer[]
     activePlayer: string
     [key: string]: any
 }

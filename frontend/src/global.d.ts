@@ -35,7 +35,7 @@
 
 import { Entity } from "redis-om";
 
-type LobbyPlayer = {
+export type LobbyPlayer = {
     nickname: string,
     id: string,
     isReady: boolean,
