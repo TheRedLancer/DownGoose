@@ -31,6 +31,7 @@ const GameManager = {
 
             socket.on('choose-action', async (playerId: string, roomId: string, action: number) => {
                 console.log(socket.id, "emit player-action", roomId);
+                
                 socket.to(roomId).emit('player-action',
                     playerId,
                     action,
