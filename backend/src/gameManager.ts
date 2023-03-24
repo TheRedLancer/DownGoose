@@ -21,12 +21,30 @@ const GameManager = {
             });
 
             socket.on('leave-game', async (playerId: string, roomId: string) => {
-                console.log(socket.id , "emit player-leave", roomId);
+                console.log(socket.id, "emit player-leave", roomId);
                 socket.to(roomId).emit('player-leave', 
                     playerId,
                     await getGameData(roomId)
                 );
                 socket.leave(roomId);
+            });
+
+            socket.on('choose-action', async (playerId: string, roomId: string, action: number) => {
+                console.log(socket.id, "emit player-action", roomId);
+                socket.to(roomId).emit('player-action',
+                    playerId,
+                    action,
+                    await getGameData(roomId)
+                );
+            });
+
+            socket.on('response-action', async (playerId: string, roomId: string, action: number) => {
+                console.log(socket.id, "emit player-response-action", roomId);
+                socket.to(roomId).emit('player-response-action',
+                    playerId,
+                    action,
+                    await getGameData(roomId)
+                );
             });
 
             socket.on("disconnect", () => {

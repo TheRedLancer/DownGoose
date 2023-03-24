@@ -21,6 +21,9 @@ export const config = {
     HOUR_EXPIRATION: 60 * 60, // one hour
     SERVER_PORT: 3000,
     SOCKET_PORT: 8000,
+    REDIS_HOSTNAME: 'redis-18346.c285.us-west-2-2.ec2.cloud.redislabs.com',
+    REDIS_PORT: 18346,
     REDIS_USER:"default",
-    REDIS_PASS:"PswBYDuLBJzrOytzhPa21hUM1ygZn7sZ"
+    REDIS_PASS: getDefault(process.env.REDIS_PASS, ""),
+
 }

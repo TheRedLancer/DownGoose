@@ -173,6 +173,7 @@ export function gameState(room: Entity, players: Entity[]): GameState {
         players: [],
         activePlayer: room.activePlayer as string
     }
+    
     state.players = players.map((player: Entity): GamePlayer => {
         return {
             nickname: player.nickname as string,

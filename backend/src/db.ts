@@ -6,11 +6,11 @@ import { config } from './config.js';
 const redis = createClient({
     password: config.REDIS_PASS,
     socket: {
-        host: 'redis-10211.c285.us-west-2-2.ec2.cloud.redislabs.com',
-        port: 10211
+        host: config.REDIS_HOSTNAME,
+        port: config.REDIS_PORT
     }
 });
-redis.on('error', (err) => console.log('Redis Client Error', err));
+//redis.on('error', (err) => console.log('Redis Client Error', err));
 await redis.connect();
 
 export const roomRepo = new Repository(SCHEMAS.gameRoomSchema, redis);
