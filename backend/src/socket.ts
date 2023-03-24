@@ -3,6 +3,7 @@ import { config } from "./config.js";
 import LobbyManager from "./lobbyManager.js";
 import { instrument } from '@socket.io/admin-ui';
 import db from "./db.js";
+import GameManager from './gameManager.js';
 
 const port = config.SOCKET_PORT || 8000;
 
@@ -16,6 +17,7 @@ const io = new Server(port, {
 });
 
 LobbyManager.listen(io.of("/lobby"));
+GameManager.listen(io.of("/game"));
 
 io.engine.on("connection_error", (err) => {
     console.log(err.req);      // the request object

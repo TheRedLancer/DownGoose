@@ -2,37 +2,36 @@ import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-o
 import { roomRepo, playerRepo } from "./db.js";
 import { config } from './config.js';
 import { GamePlayer, GameState } from "../global.js";
+import { LobbyPlayer } from '../../frontend/src/global';
 
-function redis_now() {
+function now_seconds() {
     return Math.floor((new Date()).getTime() / 1000);
 }
 
 /**
- * 
  * @param room database entity
  * @returns List of players
  */
-async function getPlayersInRoom(room: Entity) {
-    if (room.players) {
-        let players: Promise<Entity>[];
-        // @ts-ignore
-        players = await room.players.map(async (playerId: string) => {
-            return await playerRepo.fetch(playerId);
-        });
-        return Promise.all(players);
+async function getPlayersInRoom(room: Entity): Promise<Entity[]> {
+    if (!room.players) {
+        return Promise.resolve([]);
     }
-    let out: Promise<Entity>[] = [];
-    return out;
+    let players: Promise<Entity>[];
+    // @ts-ignore Could use room.players as string[], but no need to allocate new object
+    players = room.players.map(async (playerId: string) => {
+        return await playerRepo.fetch(playerId);
+    });
+    return Promise.all(players);
 }
 
 export async function createGameRoom(roomCode : string) {
     let room = {
         version: 1,
-        createTime: redis_now(),
+        createTime: now_seconds(),
         playerJoined: -1,
         startGame: -1,
         players: [],
-        lastInteraction: redis_now(),
+        lastInteraction: now_seconds(),
         roomCode: roomCode,
         activePlayer: "",
     }
@@ -59,7 +58,7 @@ export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[
         version: 1,
         nickname: nickname,
         roomCode: room.roomCode,
-        joinTime: redis_now(),
+        joinTime: now_seconds(),
         cardColors: [],
         currentRotation: -1,
         ready: false,
@@ -73,8 +72,8 @@ export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[
         return [room, null];
     }
     await playerRepo.expire(player_r[EntityId], config.HOUR_EXPIRATION);
-    room.lastInteraction = redis_now();
-    room.playerJoined = redis_now();
+    room.lastInteraction = now_seconds();
+    room.playerJoined = now_seconds();
     // @ts-ignore
     room.players.push(player_r[EntityId]);
     let room_r = await roomRepo.save(room);
@@ -82,22 +81,20 @@ export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[
     return [room_r, player_r];
 }
 
-export async function getLobbyData(roomId: string) {
+export async function getLobbyData(roomId: string): Promise<LobbyPlayer[]> {
     let room = await roomRepo.fetch(roomId);
     if (!room) {
         throw new Error("Room does not exist");
     }
-    // @ts-ignore
-    let players = await room.players.map(async (id: string) => {
-        let player = await playerRepo.fetch(id);
-        let player_data = {
-            nickname: player.nickname,
-            id: id,
-            isReady: player.ready
+    let players = (await getPlayersInRoom(room)).map(player => {
+        let player_data : LobbyPlayer = {
+            nickname: player.nickname as string,
+            id: player[EntityId] as string,
+            isReady: player.ready as boolean
         }
         return player_data;
-    });
-    return Promise.all(players);
+    })
+    return players;
 }
 
 export async function readyPlayer(playerId: string, isReady: boolean) {
@@ -124,7 +121,7 @@ export async function startGame(roomId: string) {
     // activePlayer: {type: 'string'},
     // gameState: {type: 'number'},
 
-    // @ts-ignore room.players is going to be a string[] if it exists
+    // @ts-ignore Could use room.players as string[], but no need to allocate new object
     let players = room.players.map(async (playerId: string) => {
         let player = await playerRepo.fetch(playerId);
         // Give each player a card
@@ -135,11 +132,12 @@ export async function startGame(roomId: string) {
     });
     //console.log("Game room players: ", await Promise.all(players));
     // Set start game time
-    room.startGame = redis_now();
-    room.lastInteraction = redis_now();
+    room.startGame = now_seconds();
+    room.lastInteraction = now_seconds();
     room.gameState = 2;
+
     // Choose random start player
-    // @ts-ignore room.players is going to be a string[] if it exists
+    // @ts-ignore Could use room.players as string[], but no need to allocate new object
     room.activePlayer = room.players[Math.floor(Math.random() * room.players.length)];
 
     let room_r = await roomRepo.save(room);
@@ -156,37 +154,33 @@ function generateCard(): string[] {
     return card;
 }
 
-export async function getGameData(roomId: string) {
+export async function getGameData(roomId: string): Promise<GameState> {
     let room = await roomRepo.fetch(roomId);
-    return {};
+    let players = await getPlayersInRoom(room);
+    return gameState(room, players);
 }
 
 /**
  * Parse database items into gamestate to send to the frontend
  * @param room
- * @param players 
- * @returns 
+ * @param players
+ * @returns
  */
 export function gameState(room: Entity, players: Entity[]): GameState {
     let state: GameState = {
-        roomId: "empty",
-        roomCode: "empty",
+        roomId: room[EntityId] as string,
+        roomCode: room.roomCode as string,
         players: [],
-        activePlayer: "empty"
+        activePlayer: room.activePlayer as string
     }
-    if (room[EntityId] && room.roomCode && typeof room.roomCode === 'string' && room.activePlayer && typeof room.activePlayer === 'string') {
-        state = {
-            roomId: room[EntityId],
-            roomCode: room.roomCode,
-            players: [],
-            activePlayer: room.activePlayer
-        }
-    }
-
     state.players = players.map((player: Entity): GamePlayer => {
         return {
-            //@ts-ignore
-            nickname: player.nickname, cardColors: player.cardColors, currentRotation: player.currentRotation, colorChoice: player.colorChoice, doneRotating: player.doneRotating, id: player[EntityId]
+            nickname: player.nickname as string,
+            cardColors: player.cardColors as string[],
+            currentRotation: player.currentRotation as number,
+            colorChoice: player.colorChoice as number,
+            doneRotating: player.doneRotating as boolean,
+            id: player[EntityId] as string
         }
     });
 

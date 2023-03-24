@@ -28,6 +28,7 @@ export default function Card(props: props) {
                 width={50}
                 height={50} 
             />}
+            {props.active && "YOUR TURN"}
         </div>
     )  
 }

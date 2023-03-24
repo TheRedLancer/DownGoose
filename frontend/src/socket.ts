@@ -1,11 +1,11 @@
-import { io } from 'socket.io-client';
+import { Manager } from 'socket.io-client';
 
-export const lobbySocket = io("http://localhost:8000/lobby", {
+const manager = new Manager("http://localhost:8000", {
+    reconnectionDelayMax: 10000,
     autoConnect: false,
-    withCredentials: false,
-});
+    withCredentials: false
+})
 
-export const gameSocket = io("http://localhost:8000/game", {
-    autoConnect: false,
-    withCredentials: false,
-});
+export const lobbySocket = manager.socket("/lobby");
+
+export const gameSocket = manager.socket("/game");
