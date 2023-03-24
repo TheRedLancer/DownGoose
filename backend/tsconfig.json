@@ -14,8 +14,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "typeRoots": ["node_modules/@types", "src/types"]
   },
-  "include": ["src", "global.d.ts"],
+  "include": ["src"],
 //   "references": [{ "path": "./tsconfig.node.json" }]
 }

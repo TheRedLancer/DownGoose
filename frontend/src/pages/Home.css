@@ -31,12 +31,3 @@
     animation: logo-spin infinite 20s linear;
   }
 }
-
-.card-active {
-  border-style: solid;
-  border-color: yellow;
-}
-
-li {
-  list-style: none;
-}

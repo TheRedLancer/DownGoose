@@ -22,13 +22,12 @@ export default function Card(props: props) {
                 style={{
                     transform: `rotate(${(rotation % 4) * 90}deg)` 
                 }}
-                className={"card" + props.active ? "active" : ""}
+                className={props.active ? "active" : ""}
                 src={props.image} 
                 alt="Card"
                 width={50}
                 height={50} 
             />}
-            {props.active && "YOUR TURN"}
         </div>
     )  
 }

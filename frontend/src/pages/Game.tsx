@@ -8,7 +8,7 @@ import GooseCardArea from '../components/GooseCardArea'
 import PlayerButtons from '../components/PlayerButtons';
 import { useLocation } from "react-router-dom";
 import { gameSocket } from '../socket';
-import { GamePlayer, GameState, LobbyPlayer, LobbyPlayers } from '../global';
+// import { GamePlayer, GameState, LobbyPlayer, LobbyPlayers } from '../global';
 import getCardFile from '../colorCardData';
 
 export default function Game() {    
@@ -113,14 +113,14 @@ export default function Game() {
                 players={players}
                 activePlayer={activePlayer}
             />
-            <h1>You: {player?.nickname}</h1>
+            <h3>You: {player?.nickname}</h3>
             <Card
                 rotation={player?.currentRotation}
                 active={activePlayer === player?.id}
                 image={getCardFile(player?.cardColors)}
             />
             <PlayerButtons
-                currentColor={0}
+                currentColor={2}
                 calledColor={0}
                 active={activePlayer === player?.nickname}
                 numberQuacked={5}

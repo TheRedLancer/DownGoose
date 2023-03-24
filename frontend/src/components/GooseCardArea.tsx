@@ -2,7 +2,6 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import { GamePlayer } from '../global'
 import Card from './Card'
 import gooseCard from '/goose/gooseBack.png'
 
@@ -23,7 +22,7 @@ export default function GooseCardArea(props: props) {
                 {player.nickname}
                 <Card
                     rotation={player.currentRotation} 
-                    active={props.activePlayer === player.name}
+                    active={props.activePlayer === player.id}
                     image={gooseCard}
                 />
             </li>)}

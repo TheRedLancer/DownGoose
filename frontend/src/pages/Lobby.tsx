@@ -4,7 +4,6 @@
 */
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from "react-router-dom"
-import { LobbyPlayer, LobbyPlayers, GameState } from '../global';
 import PlayerReadyDisplay from '../components/PlayerReadyDisplay';
 import { lobbySocket } from '../socket';
 

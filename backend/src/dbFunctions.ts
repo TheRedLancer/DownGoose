@@ -1,8 +1,6 @@
 import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
 import { roomRepo, playerRepo } from "./db.js";
 import { config } from './config.js';
-import { GamePlayer, GameState } from "../global.js";
-import { LobbyPlayer } from '../../frontend/src/global';
 
 function now_seconds() {
     return Math.floor((new Date()).getTime() / 1000);
