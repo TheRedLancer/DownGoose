@@ -1,10 +1,28 @@
 import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
-import { gameRoomRepo, playerRepo } from "./db.js";
+import { roomRepo, playerRepo } from "./db.js";
 import { config } from './config.js';
 import { GamePlayer, GameState } from "../global.js";
 
 function redis_now() {
     return Math.floor((new Date()).getTime() / 1000);
+}
+
+/**
+ * 
+ * @param room database entity
+ * @returns List of players
+ */
+async function getPlayersInRoom(room: Entity) {
+    if (room.players) {
+        let players: Promise<Entity>[];
+        // @ts-ignore
+        players = await room.players.map(async (playerId: string) => {
+            return await playerRepo.fetch(playerId);
+        });
+        return Promise.all(players);
+    }
+    let out: Promise<Entity>[] = [];
+    return out;
 }
 
 export async function createGameRoom(roomCode : string) {
@@ -18,16 +36,16 @@ export async function createGameRoom(roomCode : string) {
         roomCode: roomCode,
         activePlayer: "",
     }
-    let room_r = await gameRoomRepo.save(room);
+    let room_r = await roomRepo.save(room);
     if (!room_r[EntityId]) {
         return null;
     }
-    await gameRoomRepo.expire(room_r[EntityId], config.HOUR_EXPIRATION);
+    await roomRepo.expire(room_r[EntityId], config.HOUR_EXPIRATION);
     return room_r;
 }
 
 export async function addPlayerToRoomCode(roomCode: string, nickname: string) {
-    let room = await gameRoomRepo.search().where('roomCode').equals(roomCode).return.first()//.return.first()//.catch((e) => {console.log(e, "banana"); return null});
+    let room = await roomRepo.search().where('roomCode').equals(roomCode).return.first()//.return.first()//.catch((e) => {console.log(e, "banana"); return null});
     console.log("addPlayerToRoom");
     //console.log("addPlayerToRoom:", room);
     if (!room) {
@@ -59,13 +77,13 @@ export async function addPlayerToRoom(room: Entity, nickname: string): Promise<[
     room.playerJoined = redis_now();
     // @ts-ignore
     room.players.push(player_r[EntityId]);
-    let room_r = await gameRoomRepo.save(room);
+    let room_r = await roomRepo.save(room);
     //console.log("after room", room);
     return [room_r, player_r];
 }
 
 export async function getLobbyData(roomId: string) {
-    let room = await gameRoomRepo.fetch(roomId);
+    let room = await roomRepo.fetch(roomId);
     if (!room) {
         throw new Error("Room does not exist");
     }
@@ -92,7 +110,7 @@ export async function readyPlayer(playerId: string, isReady: boolean) {
 }
 
 export async function startGame(roomId: string) {
-    let room = await gameRoomRepo.fetch(roomId);
+    let room = await roomRepo.fetch(roomId);
     if (!room) {
         throw new Error("Room does not exist");
     }
@@ -124,7 +142,7 @@ export async function startGame(roomId: string) {
     // @ts-ignore room.players is going to be a string[] if it exists
     room.activePlayer = room.players[Math.floor(Math.random() * room.players.length)];
 
-    let room_r = await gameRoomRepo.save(room);
+    let room_r = await roomRepo.save(room);
     //console.log("Game room", await room_r);
     return [room_r, Promise.all(players)];
 }
@@ -136,6 +154,11 @@ function generateCard(): string[] {
         [card[i], card[j]] = [card[j], card[i]];
     }
     return card;
+}
+
+export async function getGameData(roomId: string) {
+    let room = await roomRepo.fetch(roomId);
+    return {};
 }
 
 /**

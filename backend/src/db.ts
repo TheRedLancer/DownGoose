@@ -13,8 +13,8 @@ const redis = createClient({
 redis.on('error', (err) => console.log('Redis Client Error', err));
 await redis.connect();
 
-export const gameRoomRepo = new Repository(SCHEMAS.gameRoomSchema, redis);
-await gameRoomRepo.createIndex();
+export const roomRepo = new Repository(SCHEMAS.gameRoomSchema, redis);
+await roomRepo.createIndex();
 export const playerRepo = new Repository(SCHEMAS.playerSchema, redis);
 await playerRepo.createIndex();
 

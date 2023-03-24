@@ -5,7 +5,7 @@
     pink: 2,
     yellow: 3
 */
-const colorMap = ["blue", "orange", "pink", "yellow"]
+export const colorMap = ["blue", "orange", "pink", "yellow"]
 
 
 function getCardFile(colors: (string[] | undefined) ): string {
