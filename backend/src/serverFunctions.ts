@@ -1,6 +1,5 @@
 import { createGameRoom, addPlayerToRoom, addPlayerToRoomCode } from './dbFunctions.js'
 import { Request } from 'express';
-import { EntityId } from 'redis-om';
 
 async function createRoomFromRequest(req: Request) : Promise<[number, RoomResponse]> {
     //@ts-ignore
@@ -25,7 +24,7 @@ async function createRoomFromRequest(req: Request) : Promise<[number, RoomRespon
     }
     let data = {
         room: room,
-        roomId: room[EntityId],
+        roomId: room.id,
         message: message,
     }
     return [status, data]
@@ -66,9 +65,9 @@ async function addPlayerToRoomFromRequest(req: Request) {
     status = 200;
     data = {
         room: room,
-        roomId: room[EntityId],
+        roomId: room.id,
         player: player,
-        playerId: player[EntityId],
+        playerId: player.id,
         message: "OK",
     }
     return [status, data];

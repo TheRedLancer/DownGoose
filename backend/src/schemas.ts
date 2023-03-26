@@ -6,24 +6,24 @@ const gameRoomSchema = new Schema('gameRoom', {
     playerJoined: {type: 'date'},
     startGame: {type: 'date'},
     lastInteraction: {type: 'date'},
-    players: {type: 'string[]'},
     roomCode: {type: 'string'},
+    players: {type: 'string[]'},
     activePlayer: {type: 'string'},
+    id: {type: 'string'}
 }, {
     dataStructure: 'JSON'
 })
 
 const playerSchema = new Schema('player', {
-    version: {type: 'number'},    
+    version: {type: 'number'},
     nickname: {type: 'string'},
     roomCode: {type: 'string'},
     joinTime: {type: 'date'},
     cardColors: {type: 'string[]'}, // ['1', '0', '3', '2']
     currentRotation: {type: 'number'},
     ready: {type: 'boolean'},
-    action: {type: 'number'}, // 0: waiting, 1: downgoose, 2: color
-    colorChoice: {type: 'number'},
-    doneRotating: {type: 'boolean'},
+    action: {type: 'number'}, // -1: lobby, 0-3: Call a Color, 4: Quack
+    id: {type: 'string'}
 }, {
     dataStructure: 'JSON'
 })

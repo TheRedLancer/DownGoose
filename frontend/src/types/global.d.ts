@@ -28,10 +28,9 @@ declare global {
         nickname: string,
         cardColors: string[],
         currentRotation: number,
-        colorChoice: number,
-        doneRotating: boolean,
-        id: string,
-        [key: string]: any
+        ready: boolean,
+        action: number,
+        id: string
     }
 
     type GameState = {

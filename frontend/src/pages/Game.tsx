@@ -28,7 +28,13 @@ export default function Game() {
     const {state} = useLocation();
 
     function parseGameData(data: GameState) {
-        setPlayers(data.players.filter((p: GamePlayer) => p.id !== player?.id));
+        console.log("New GameState:", data);
+        setPlayers(data.players.filter((p: GamePlayer) => {
+            if (p.id === player?.id) {
+                setPlayer(p);
+            }
+            return p.id !== player?.id
+        }));
         setActivePlayer(data.activePlayer);
     }
 
@@ -75,6 +81,27 @@ export default function Game() {
         function onPlayerJoin(playerId: string, gameData: GameState) {
             console.log(playerId + " joined");
             console.log("Game data:", gameData);
+            parseGameData(gameData);
+        }
+
+        function onPlayerActionColor(playerId: string, color: number, gameData: GameState) {
+            console.log("got player-action-color");
+            parseGameData(gameData);
+        }
+
+        function onPlayerResponseColor(playerId: string, isRotating: boolean, gameData: GameState) {
+            console.log("got player-response-color");
+            parseGameData(gameData);
+        }
+
+        function onPlayerActionQuack(playerId: string, gameData: GameState) {
+            console.log("got player-action-quack");
+            parseGameData(gameData);
+        }
+
+        function onPlayerResponseQuack(playerId: string, gameData: GameState) {
+            console.log("got player-response-quack");
+            parseGameData(gameData);
         }
 
         if (player) {
@@ -83,6 +110,10 @@ export default function Game() {
             gameSocket.on('disconnect', onDisconnect);
             gameSocket.on('on-join', onJoin);
             gameSocket.on('player-join', onPlayerJoin);
+            gameSocket.on('player-action-color', onPlayerActionColor);
+            gameSocket.on('player-response-color', onPlayerResponseColor);
+            gameSocket.on('player-action-quack', onPlayerActionQuack);
+            gameSocket.on('player-response-quack', onPlayerResponseQuack);
         }
     
         return () => {
@@ -91,7 +122,10 @@ export default function Game() {
             gameSocket.off('disconnect', onDisconnect);
             gameSocket.off('on-join', onJoin);
             gameSocket.off('player-join', onPlayerJoin);
-            
+            gameSocket.off('player-action-color', onPlayerActionColor);
+            gameSocket.off('player-response-color', onPlayerResponseColor);
+            gameSocket.off('player-action-quack', onPlayerActionQuack);
+            gameSocket.off('player-response-quack', onPlayerResponseQuack);
         };
     }, [state, player, players]);
 
@@ -105,6 +139,45 @@ export default function Game() {
             gameSocket.disconnect();
         };
     }, [state]);
+
+    function select(action: number) {
+        if (action === 4) {
+            //Quack
+            gameSocket.emit('choose-quack', player?.id, roomId);
+        } else {
+            // Call color
+            gameSocket.emit('choose-color', player?.id, roomId, action);
+        }
+    }
+
+    function respondColor(isRotating: boolean) {
+        gameSocket.emit('response-color', player?.id, roomId, isRotating);
+    }
+
+    function respondQuack() {
+        gameSocket.emit('response-quack', player?.id, roomId);
+    }
+
+    let playerColor = -1;
+    if (player) {
+        playerColor = +player?.cardColors[player.currentRotation]
+    }
+
+    let numberQuacked = players.filter(player => player.currentRotation === 0).length;
+    if (player?.currentRotation === 0) {
+        numberQuacked += 1;
+    }
+
+    let action = -1;
+    if (player?.id === activePlayer) {
+        action = player.action;
+    } else {
+        const activePlayerList = players.filter(player => {player.id === activePlayer});
+        console.log(players, activePlayer, activePlayerList)
+        if (activePlayerList.length === 1) {
+            action = activePlayerList[0].action;
+        }
+    }
 
     return (
         <div className='game'>
@@ -120,10 +193,13 @@ export default function Game() {
                 image={getCardFile(player?.cardColors)}
             />
             <PlayerButtons
-                currentColor={2}
-                calledColor={0}
-                active={activePlayer === player?.nickname}
-                numberQuacked={5}
+                currentColor={playerColor}
+                action={player?.action || -1}
+                active={activePlayer === player?.id}
+                numberQuacked={numberQuacked}
+                select={select}
+                respondColor={respondColor}
+                respondQuack={respondQuack}
             />
         </div>
     )

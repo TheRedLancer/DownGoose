@@ -9,7 +9,7 @@
     "build": "rimraf dist && npx tsc",
     "prestart": "npm run build",
     "start": "node dist/app.js",
-    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/app.js\""
+    "dev": "tsc && concurrently \"npx tsc -w\" \"nodemon dist/app.js\""
   },
   "jest": {
     "transform": {
@@ -23,7 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "nanoid": "4.0.1",
+    "nanoid": "^4.0.1",
     "redis": "^4.6.5",
     "redis-om": "^0.4.0-beta.2",
     "socket.io": "^4.6.1"
