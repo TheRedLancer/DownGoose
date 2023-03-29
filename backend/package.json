@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "build": "rimraf dist && npx tsc",
+    "build": "rimraf dist && npx tsc && ./scripts/buildBackend.ps1",
     "prestart": "npm run build",
     "start": "node dist/app.js",
     "dev": "tsc && concurrently \"npx tsc -w\" \"nodemon dist/app.js\""
