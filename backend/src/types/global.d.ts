@@ -26,6 +26,7 @@ declare global {
         players: string[],
         activePlayer: number,
         gameOver: boolean,
+        numberQuacked: number,
         id: string
     }
 
@@ -65,6 +66,7 @@ declare global {
         roomCode: string,
         players: GamePlayer[]
         activePlayer: string
+        numberQuacked: number
         gameOver: boolean
     }
 }

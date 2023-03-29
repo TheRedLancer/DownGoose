@@ -54,8 +54,15 @@ export default function PlayerButtons(props: props) {
     const waitingForOthers = <div className="waiting">
             Waiting for other players...
         </div>
+    
+    const gameOver = <div className="gameOver">
+            Congratz You Win!!!
+        </div>
 
     // console.log(props.action, props.active)
+    if (props.gameOver) {
+        return gameOver;
+    }
     if (props.ready) {
         return waitingForOthers;
     }

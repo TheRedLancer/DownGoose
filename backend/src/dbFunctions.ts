@@ -28,6 +28,7 @@ function makeRoom(roomCode: string): Room {
         roomCode: roomCode,
         activePlayer: 0,
         gameOver: false,
+        numberQuacked: 0,
         id: nanoid()
     }
 }
@@ -156,15 +157,7 @@ export async function getGameData(roomId: string): Promise<GameState> {
  * @returns
  */
 export function gameState(room: Room, players: Player[]): GameState {
-    let state: GameState = {
-        roomId: room.id,
-        roomCode: room.roomCode,
-        players: [],
-        activePlayer: room.players[room.activePlayer],
-        gameOver: room.gameOver
-    }
-    
-    state.players = players.map((player: Player): GamePlayer => {
+    const playerData = players.map((player: Player): GamePlayer => {
         return {
             nickname: player.nickname,
             cardColors: player.cardColors,
@@ -174,6 +167,15 @@ export function gameState(room: Room, players: Player[]): GameState {
             id: player.id
         }
     });
+
+    let state: GameState = {
+        roomId: room.id,
+        roomCode: room.roomCode,
+        players: playerData,
+        activePlayer: room.players[room.activePlayer],
+        gameOver: room.gameOver,
+        numberQuacked: room.numberQuacked,
+    }
 
     return state;
 }
@@ -199,15 +201,18 @@ export async function setQuackAction(playerId: string, roomId: string) {
     if (!room) {
         throw new Error("Room does not exist");
     }
+    room.numberQuacked = 0;
     const players = await getPlayersInRoom(room);
-    const players_r = players.map(async (player) => {
+    const players_r = await Promise.all(players.map(async (player) => {
         if (player.id === playerId) {
             player.action = 4;
+        } else if (player.currentRotation === 0) {
+            room.numberQuacked += 1;
         }
         player.ready = false;
         return await playerRepo.save(player) as Player;
-    });
-    return gameState(room, await Promise.all(players_r));
+    }));
+    return gameState(room, players_r);
 }
 
 export async function colorResponse(playerId: string, roomId: string, isRotating: boolean) {
@@ -246,12 +251,17 @@ export async function quackResponse(playerId: string, roomId: string) {
     await playerRepo.save(player);
     let room = await roomRepo.fetch(roomId) as Room;
     let players = await getPlayersInRoom(room);
-    if (checkGameOver(players)) {
-        room.gameOver = true;
-    } else if (checkTurnOver(players)) {
+    if (checkTurnOver(players)) {
+        const gameOver = checkGameOver(players)
+        if (gameOver) {
+            room.gameOver = true;
+        }
         nextTurn(room, players);
         room = await roomRepo.save(room) as Room;
         players = await Promise.all(players.map(async (player) => {
+            if (!gameOver) {
+                player.currentRotation = (player.currentRotation + 2) % 4;
+            }
             return await playerRepo.save(player) as Player;
         }));
     }
@@ -269,7 +279,7 @@ function checkTurnOver(players: Player[]): boolean {
 
 function checkGameOver(players: Player[]): boolean {
     for (const player of players) {
-        if (!player.currentRotation) {
+        if (player.currentRotation !== 0) {
             return false;
         }
     }

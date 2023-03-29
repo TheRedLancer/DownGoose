@@ -10,6 +10,7 @@ const gameRoomSchema = new Schema('gameRoom', {
     players: {type: 'string[]'},
     activePlayer: {type: 'number'},
     gameOver: {type: 'boolean'},
+    numberQuacked: {type: 'number'},
     id: {type: 'string'}
 }, {
     dataStructure: 'JSON'

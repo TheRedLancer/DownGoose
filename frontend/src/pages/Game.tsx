@@ -23,6 +23,8 @@ export default function Game() {
     const [activePlayer, setActivePlayer] = useState("");
     const [roomId, setRoomId] = useState("");
     const [roomCode, setRoomCode] = useState("");
+    const [numberQuacked, setNumberQuacked] = useState(0);
+    const [gameOver, setGameOver] = useState(false);
 
     const {state} = useLocation();
 
@@ -35,6 +37,8 @@ export default function Game() {
             return p.id !== player?.id
         }));
         setActivePlayer(data.activePlayer);
+        setNumberQuacked(data.numberQuacked);
+        setGameOver(data.gameOver);
     }
 
     useEffect(() => {
@@ -163,11 +167,6 @@ export default function Game() {
         playerColor = +player?.cardColors[player.currentRotation]
     }
 
-    let numberQuacked = players.filter(player => player.currentRotation === 0).length;
-    if (player?.currentRotation === 0) {
-        numberQuacked += 1;
-    }
-
     let action = -1;
     if (player?.id === activePlayer) {
         action = player.action;
@@ -201,6 +200,7 @@ export default function Game() {
                 respondColor={respondColor}
                 respondQuack={respondQuack}
                 ready={player?.ready}
+                gameOver={gameOver}
             />
         </div>
     )
