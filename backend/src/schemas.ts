@@ -8,7 +8,8 @@ const gameRoomSchema = new Schema('gameRoom', {
     lastInteraction: {type: 'date'},
     roomCode: {type: 'string'},
     players: {type: 'string[]'},
-    activePlayer: {type: 'string'},
+    activePlayer: {type: 'number'},
+    gameOver: {type: 'boolean'},
     id: {type: 'string'}
 }, {
     dataStructure: 'JSON'

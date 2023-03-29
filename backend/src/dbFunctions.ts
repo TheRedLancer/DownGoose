@@ -26,7 +26,8 @@ function makeRoom(roomCode: string): Room {
         lastInteraction: now_seconds(),
         players: [],
         roomCode: roomCode,
-        activePlayer: "",
+        activePlayer: 0,
+        gameOver: false,
         id: nanoid()
     }
 }
@@ -116,6 +117,7 @@ export async function startGame(roomId: string)  {
         player.cardColors = generateCard();
         // Set each players card's rotation
         player.currentRotation = Math.floor(Math.random() * 4);
+        player.ready = false;
         return await playerRepo.save(player) as Player;
     });
     // Set start game time
@@ -123,7 +125,7 @@ export async function startGame(roomId: string)  {
     room.lastInteraction = now_seconds();
 
     // Choose random start player
-    room.activePlayer = room.players[Math.floor(Math.random() * room.players.length)];
+    room.activePlayer = Math.floor(Math.random() * room.players.length);
 
     let room_r = await roomRepo.save(room) as Room;
     return Promise.all([room_r, Promise.all(players)]);
@@ -158,7 +160,8 @@ export function gameState(room: Room, players: Player[]): GameState {
         roomId: room.id,
         roomCode: room.roomCode,
         players: [],
-        activePlayer: room.activePlayer
+        activePlayer: room.players[room.activePlayer],
+        gameOver: room.gameOver
     }
     
     state.players = players.map((player: Player): GamePlayer => {
@@ -208,11 +211,11 @@ export async function setQuackAction(playerId: string, roomId: string) {
 }
 
 export async function colorResponse(playerId: string, roomId: string, isRotating: boolean) {
-    const room = await roomRepo.fetch(roomId) as Room | null;
+    let room = await roomRepo.fetch(roomId) as Room | null;
     if (!room) {
         throw new Error("Room does not exist");
     }
-    const activePlayer = await playerRepo.fetch(room.activePlayer) as Player | null;
+    const activePlayer = await playerRepo.fetch(room.players[room.activePlayer]) as Player | null;
     if (!activePlayer) {
         throw new Error("Player does not exist");
     }
@@ -226,12 +229,61 @@ export async function colorResponse(playerId: string, roomId: string, isRotating
     }
     currentPlayer.ready = true;
     await playerRepo.save(currentPlayer);
-    return gameState(room, await getPlayersInRoom(room));
+    let players = await getPlayersInRoom(room);
+    if (checkTurnOver(players)) {
+        nextTurn(room, players);
+        room = await roomRepo.save(room) as Room;
+        players = await Promise.all(players.map(async (player) => {
+            return await playerRepo.save(player) as Player;
+        }));
+    }
+    return gameState(room, players);
 }
 
 export async function quackResponse(playerId: string, roomId: string) {
     const player = await playerRepo.fetch(playerId);
     player.ready = true;
     await playerRepo.save(player);
-    return getGameData(roomId);
+    let room = await roomRepo.fetch(roomId) as Room;
+    let players = await getPlayersInRoom(room);
+    if (checkGameOver(players)) {
+        room.gameOver = true;
+    } else if (checkTurnOver(players)) {
+        nextTurn(room, players);
+        room = await roomRepo.save(room) as Room;
+        players = await Promise.all(players.map(async (player) => {
+            return await playerRepo.save(player) as Player;
+        }));
+    }
+    return gameState(room, players);
+}
+
+function checkTurnOver(players: Player[]): boolean {
+    for (const player of players) {
+        if (!player.ready) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function checkGameOver(players: Player[]): boolean {
+    for (const player of players) {
+        if (!player.currentRotation) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function nextTurn(room: Room, players: Player[]) {
+    room.activePlayer += 1;
+    if (room.activePlayer === room.players.length) {
+        room.activePlayer = 0;
+    }
+    room.lastInteraction = now_seconds();
+    for (const player of players) {
+        player.ready = false;
+        player.action = -1;
+    }
 }

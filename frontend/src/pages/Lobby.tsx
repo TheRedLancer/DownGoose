@@ -12,38 +12,43 @@ export default function Lobby() {
     const [isConnected, setIsConnected] = useState(false);
     const [player, setPlayer] = useState<LobbyPlayer | undefined>(undefined);
     const [players, setPlayers] = useState<LobbyPlayers>([]);
-    const [isReady, setIsReady] = useState(false);
+    const [ready, setReady] = useState(false);
+    const [roomCode, setRoomCode] = useState("");
+    const [roomId, setRoomId] = useState("");
 
     const {state} = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!parsedLocationState) {
+            console.log("STATE", state)
             setPlayer({
                 nickname: state.player.nickname,
                 id: state.playerId,
-                isReady: false,
+                ready: false,
             });
+            setRoomCode(state.room.roomCode);
+            setRoomId(state.roomId);
             setParsedLocationState(true);
         }
     }, [state]);
 
     useEffect(() => {
         // no-op if the socket is already connected
-        if (state.room.roomCode && state.roomId) {
-            console.log("Attempting to connect to ", state.room.roomCode);
+        if (roomCode && roomId) {
+            console.log("Attempting to connect to ", roomCode);
             lobbySocket.connect();
         }
         return () => {
             lobbySocket.disconnect();
         };
-    }, [state]);
+    }, [roomCode, roomId]);
 
     useEffect(() => {
         function onConnect() {
             setIsConnected(true);
-            console.log("Connected to:", state.roomId);
-            lobbySocket.emit('join-room', player!.id, player!.nickname, state.roomId);
+            console.log("Connected to:", roomId);
+            lobbySocket.emit('join-room', player!.id, player!.nickname, roomId);
         }
 
         function onPing() {
@@ -124,17 +129,17 @@ export default function Lobby() {
             console.log("no player");
             return;
         }
-        if (player.isReady) {
-            lobbySocket.emit('unready', player.id, state.roomId);
+        if (player.ready) {
+            lobbySocket.emit('unready', player.id, roomId);
             let newPlayer = player;
-            newPlayer.isReady = false;
-            setIsReady(newPlayer.isReady);
+            newPlayer.ready = false;
+            setReady(newPlayer.ready);
             setPlayer(newPlayer)
         } else {
-            lobbySocket.emit('ready', player.id, state.roomId);
+            lobbySocket.emit('ready', player.id, roomId);
             let newPlayer = player;
-            newPlayer.isReady = true;
-            setIsReady(newPlayer.isReady);
+            newPlayer.ready = true;
+            setReady(newPlayer.ready);
             setPlayer(newPlayer)
         }
     }
@@ -148,17 +153,30 @@ export default function Lobby() {
             console.log("no player");
             return;
         }
-        lobbySocket.emit('start-game', player.id, state.roomId);
+        // TODO: Uncomment to make people wait till everyone is ready
+        // let allReady = ready;
+        // for (const p of players) {
+        //     if (!p.ready) {
+        //         allReady = false;
+        //     }
+        // }
+        // if (allReady) {
+            lobbySocket.emit('start-game', player.id, roomId);
+        // } else {
+        //     console.log("Someone isn't ready");
+        // }
     }
+
+    const isPlayerReady = player?.ready.toString();
 
     return (
         <div className='lobby'>
             <h1>
-                Join Code: {state.room.roomCode || "No room code"}
+                Join Code: {roomCode || "No room code"}
             </h1>
             <h3>You: {player?.nickname}</h3>
-            <h2>Are you ready? {player?.isReady.toString()}</h2>
-            <button onClick={() => {toggleReady()}}>{isReady ? "Unready" : "Ready Up"}</button>
+            <h2>Are you ready? {isPlayerReady}</h2>
+            <button onClick={() => {toggleReady()}}>{ready ? "Unready" : "Ready Up"}</button>
             <button onClick={() => {startGame()}}>Start game!</button>
             <PlayerReadyDisplay players={players} />
         </div>

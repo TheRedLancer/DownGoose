@@ -32,8 +32,10 @@ export default function PlayerButtons(props: props) {
         </div>
     
     const quackMessage = <div className='quack-message'>
-            Current player quacked {props.numberQuacked} times!
-            <button onClick={() => props.respondQuack()}>ready</button>
+            <div>
+                Current player quacked {props.numberQuacked} times!
+            </div>
+            <button onClick={() => props.respondQuack()}>Ready Up</button>
         </div>
 
     const responseOptions = <div className='player-choice'>
@@ -45,17 +47,26 @@ export default function PlayerButtons(props: props) {
         </button>
         </div>
     
-    const waiting = <div className="waiting">
+    const waitingForActive = <div className="waiting">
             Waiting for current player...
         </div>
+    
+    const waitingForOthers = <div className="waiting">
+            Waiting for other players...
+        </div>
 
-    if (props.active) {
-        return activeOptions;
-    } else if (props.action === 4) {
-        return quackMessage;
-    } else if (props.action !== -1) {
-        return responseOptions;
-    } else {
-        return waiting;
+    // console.log(props.action, props.active)
+    if (props.ready) {
+        return waitingForOthers;
     }
+    if (props.action === -1) {
+        if (props.active) {
+            return activeOptions;
+        }
+        return waitingForActive;
+    }
+    if (props.action === 4) {
+        return quackMessage;
+    }
+    return responseOptions;
 }

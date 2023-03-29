@@ -12,7 +12,7 @@ export default function PlayerReadyDisplay(props: props) {
         <div>
             {Object.entries(props.players).map(p => {
                 return <li key={p[1].id}>
-                    {p[1].nickname}: {p[1].isReady.toString()}
+                    {p[1].nickname}: {p[1].ready.toString()}
                 </li>
             })}
         </div>

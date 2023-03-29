@@ -17,7 +17,6 @@ export default function Game() {
         0-3: colors,
         4: downgoose
     */
-    const [parsedLocationState, setParsedLocationState] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [player, setPlayer] = useState<GamePlayer>();
     const [players, setPlayers] = useState<GamePlayer[]>([]);
@@ -39,21 +38,18 @@ export default function Game() {
     }
 
     useEffect(() => {
-        if (!parsedLocationState) {
-            let gs: GameState = state.gameState;
-            let p = gs.players.filter((p: GamePlayer) => p.id === state.player.id);
-            if (p.length === 1) {
-                setPlayer(p[0]);
-                console.log(p[0]);
-            }
-            let players: GamePlayer[] = gs.players.filter((p: GamePlayer) => p.id !== state.player.id);
-            setPlayers(players);
-            setActivePlayer(gs.activePlayer);
-            setRoomId(gs.roomId);
-            setRoomCode(gs.roomCode);
-            setParsedLocationState(true);
+        let gs: GameState = state.gameState;
+        let p = gs.players.filter((p: GamePlayer) => p.id === state.player.id);
+        if (p.length === 1) {
+            setPlayer(p[0]);
+            console.log(p[0]);
         }
-    }, [parsedLocationState]);
+        let players: GamePlayer[] = gs.players.filter((p: GamePlayer) => p.id !== state.player.id);
+        setPlayers(players);
+        setActivePlayer(gs.activePlayer);
+        setRoomId(gs.roomId);
+        setRoomCode(gs.roomCode);
+    }, []);
 
     useEffect(() => {
         function onConnect() {
@@ -79,6 +75,7 @@ export default function Game() {
         }
 
         function onPlayerJoin(playerId: string, gameData: GameState) {
+            console.log("got player-join");
             console.log(playerId + " joined");
             console.log("Game data:", gameData);
             parseGameData(gameData);
@@ -104,7 +101,7 @@ export default function Game() {
             parseGameData(gameData);
         }
 
-        if (player) {
+        if (isConnected) {
             gameSocket.on('connect', onConnect);
             gameSocket.on('ping', onPing);
             gameSocket.on('disconnect', onDisconnect);
@@ -127,18 +124,21 @@ export default function Game() {
             gameSocket.off('player-action-quack', onPlayerActionQuack);
             gameSocket.off('player-response-quack', onPlayerResponseQuack);
         };
-    }, [state, player, players]);
+    }, [isConnected]);
 
     useEffect(() => {
         // no-op if the socket is already connected
         if (state.gameState.roomCode && state.gameState.roomId) {
             console.log("Attempting to connect to ", state.gameState.roomCode);
             gameSocket.connect();
+            setIsConnected(true);
         }
+
         return () => {
             gameSocket.disconnect();
+            setIsConnected(false);
         };
-    }, [state]);
+    }, []);
 
     function select(action: number) {
         if (action === 4) {
@@ -172,10 +172,10 @@ export default function Game() {
     if (player?.id === activePlayer) {
         action = player.action;
     } else {
-        const activePlayerList = players.filter(player => {player.id === activePlayer});
-        console.log(players, activePlayer, activePlayerList)
-        if (activePlayerList.length === 1) {
-            action = activePlayerList[0].action;
+        for (const p of players) {
+            if (p.id == activePlayer) {
+                action = p.action;
+            }
         }
     }
 
@@ -194,12 +194,13 @@ export default function Game() {
             />
             <PlayerButtons
                 currentColor={playerColor}
-                action={player?.action || -1}
+                action={action}
                 active={activePlayer === player?.id}
                 numberQuacked={numberQuacked}
                 select={select}
                 respondColor={respondColor}
                 respondQuack={respondQuack}
+                ready={player?.ready}
             />
         </div>
     )

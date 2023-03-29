@@ -24,7 +24,8 @@ declare global {
         lastInteraction: number,
         roomCode: string,
         players: string[],
-        activePlayer: string,
+        activePlayer: number,
+        gameOver: boolean,
         id: string
     }
 
@@ -64,5 +65,6 @@ declare global {
         roomCode: string,
         players: GamePlayer[]
         activePlayer: string
+        gameOver: boolean
     }
 }
