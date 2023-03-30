@@ -1,20 +1,13 @@
-import { Server } from "socket.io";
 import { config } from "./config.js";
 import LobbyManager from "./lobbyManager.js";
 import { instrument } from '@socket.io/admin-ui';
-import db from "./db.js";
 import GameManager from './gameManager.js';
+import { Server } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events.js";
 
 const port = config.SOCKET_PORT || 8000;
 
-export default function startSocket() {
-
-const io = new Server(port, {
-    cors: {
-        origin: config.ALLOWED_HOSTS,
-        credentials: true
-    }
-});
+export default function startSocket(io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
 
 LobbyManager.listen(io.of("/lobby"));
 GameManager.listen(io.of("/game"));

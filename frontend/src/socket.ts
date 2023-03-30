@@ -1,6 +1,6 @@
 import { Manager } from 'socket.io-client';
 
-const manager = new Manager("http://localhost:8000", {
+const manager = new Manager("http://localhost:3000", {
     reconnectionDelayMax: 10000,
     autoConnect: false,
     withCredentials: false
