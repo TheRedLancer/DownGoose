@@ -2,16 +2,16 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import { useState, useEffect } from 'react'
+import {useState, useEffect} from 'react';
 import Card from '../components/Card';
-import GooseCardArea from '../components/GooseCardArea'
+import GooseCardArea from '../components/GooseCardArea';
 import PlayerButtons from '../components/PlayerButtons';
-import { useLocation } from "react-router-dom";
-import { gameSocket } from '../socket';
+import {useLocation} from 'react-router-dom';
+import {gameSocket} from '../socket';
 // import { GamePlayer, GameState, LobbyPlayer, LobbyPlayers } from '../global';
 import getCardFile from '../colorCardData';
 
-export default function Game() {    
+export default function Game() {
     /*calledColor values:
         -1: not set
         0-3: colors,
@@ -20,22 +20,24 @@ export default function Game() {
     const [isConnected, setIsConnected] = useState(false);
     const [player, setPlayer] = useState<GamePlayer>();
     const [players, setPlayers] = useState<GamePlayer[]>([]);
-    const [activePlayer, setActivePlayer] = useState("");
-    const [roomId, setRoomId] = useState("");
-    const [roomCode, setRoomCode] = useState("");
+    const [activePlayer, setActivePlayer] = useState('');
+    const [roomId, setRoomId] = useState('');
+    const [roomCode, setRoomCode] = useState('');
     const [numberQuacked, setNumberQuacked] = useState(0);
     const [gameOver, setGameOver] = useState(false);
 
     const {state} = useLocation();
 
     function parseGameData(data: GameState) {
-        console.log("New GameState:", data);
-        setPlayers(data.players.filter((p: GamePlayer) => {
-            if (p.id === player?.id) {
-                setPlayer(p);
-            }
-            return p.id !== player?.id
-        }));
+        console.log('New GameState:', data);
+        setPlayers(
+            data.players.filter((p: GamePlayer) => {
+                if (p.id === player?.id) {
+                    setPlayer(p);
+                }
+                return p.id !== player?.id;
+            })
+        );
         setActivePlayer(data.activePlayer);
         setNumberQuacked(data.numberQuacked);
         setGameOver(data.gameOver);
@@ -48,7 +50,9 @@ export default function Game() {
             setPlayer(p[0]);
             console.log(p[0]);
         }
-        let players: GamePlayer[] = gs.players.filter((p: GamePlayer) => p.id !== state.player.id);
+        let players: GamePlayer[] = gs.players.filter(
+            (p: GamePlayer) => p.id !== state.player.id
+        );
         setPlayers(players);
         setActivePlayer(gs.activePlayer);
         setRoomId(gs.roomId);
@@ -58,50 +62,58 @@ export default function Game() {
     useEffect(() => {
         function onConnect() {
             setIsConnected(true);
-            console.log("Connected to:", roomId);
+            console.log('Connected to:', roomId);
             gameSocket.emit('join-game', player!.id, roomId);
         }
 
         function onPing() {
-            console.log("got ping");
+            console.log('got ping');
             gameSocket.volatile.emit('pong');
         }
 
         function onDisconnect() {
-            console.log("got disconnect");
+            console.log('got disconnect');
             setIsConnected(false);
         }
-        
+
         function onJoin(gameData: GameState) {
-            console.log("got on-join");
-            console.log("Game data:", gameData);
+            console.log('got on-join');
+            console.log('Game data:', gameData);
             parseGameData(gameData);
         }
 
         function onPlayerJoin(playerId: string, gameData: GameState) {
-            console.log("got player-join");
-            console.log(playerId + " joined");
-            console.log("Game data:", gameData);
+            console.log('got player-join');
+            console.log(playerId + ' joined');
+            console.log('Game data:', gameData);
             parseGameData(gameData);
         }
 
-        function onPlayerActionColor(playerId: string, color: number, gameData: GameState) {
-            console.log("got player-action-color");
+        function onPlayerActionColor(
+            playerId: string,
+            color: number,
+            gameData: GameState
+        ) {
+            console.log('got player-action-color');
             parseGameData(gameData);
         }
 
-        function onPlayerResponseColor(playerId: string, isRotating: boolean, gameData: GameState) {
-            console.log("got player-response-color");
+        function onPlayerResponseColor(
+            playerId: string,
+            isRotating: boolean,
+            gameData: GameState
+        ) {
+            console.log('got player-response-color');
             parseGameData(gameData);
         }
 
         function onPlayerActionQuack(playerId: string, gameData: GameState) {
-            console.log("got player-action-quack");
+            console.log('got player-action-quack');
             parseGameData(gameData);
         }
 
         function onPlayerResponseQuack(playerId: string, gameData: GameState) {
-            console.log("got player-response-quack");
+            console.log('got player-response-quack');
             parseGameData(gameData);
         }
 
@@ -116,7 +128,7 @@ export default function Game() {
             gameSocket.on('player-action-quack', onPlayerActionQuack);
             gameSocket.on('player-response-quack', onPlayerResponseQuack);
         }
-    
+
         return () => {
             gameSocket.off('connect', onConnect);
             gameSocket.off('ping', onPing);
@@ -133,7 +145,7 @@ export default function Game() {
     useEffect(() => {
         // no-op if the socket is already connected
         if (state.gameState.roomCode && state.gameState.roomId) {
-            console.log("Attempting to connect to ", state.gameState.roomCode);
+            console.log('Attempting to connect to ', state.gameState.roomCode);
             gameSocket.connect();
             setIsConnected(true);
         }
@@ -164,7 +176,7 @@ export default function Game() {
 
     let playerColor = -1;
     if (player) {
-        playerColor = +player?.cardColors[player.currentRotation]
+        playerColor = +player?.cardColors[player.currentRotation];
     }
 
     let action = -1;
@@ -179,12 +191,9 @@ export default function Game() {
     }
 
     return (
-        <div className='game'>
+        <div className="game">
             Playing a game in {roomCode}!
-            <GooseCardArea
-                players={players}
-                activePlayer={activePlayer}
-            />
+            <GooseCardArea players={players} activePlayer={activePlayer} />
             <h3>You: {player?.nickname}</h3>
             <Card
                 rotation={player?.currentRotation}
@@ -203,5 +212,5 @@ export default function Game() {
                 gameOver={gameOver}
             />
         </div>
-    )
+    );
 }

@@ -2,36 +2,45 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import { useState } from 'react'
-import { useNavigate } from "react-router-dom";
-import * as server from "../server.js"
-import './Home.css'
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import * as server from '../server.js';
+import './Home.css';
 
 export default function Home() {
-    const [nickname, setNickname] = useState("");
-    const [roomCode, setRoomCode] = useState("");
+    const [nickname, setNickname] = useState('');
+    const [roomCode, setRoomCode] = useState('');
 
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes = await server.putPlayerInRoom(roomCode, nickname).catch(e => {console.log(e)});
+        let joinRes = await server
+            .putPlayerInRoom(roomCode, nickname)
+            .catch((e) => {
+                console.log(e);
+            });
         if (!joinRes) {
             return;
         }
         if (joinRes.status != 200) {
-            console.log(`Error: could not join: ${roomCode}`, joinRes, "\nbody:", await joinRes.json());
+            console.log(
+                `Error: could not join: ${roomCode}`,
+                joinRes,
+                '\nbody:',
+                await joinRes.json()
+            );
             return;
         }
-        joinRes.json().then(data => {
-            console.log("Sending data:", data);
-            navigate(`/${data.room.roomCode}/lobby`, { state: data });
+        joinRes.json().then((data) => {
+            console.log('Sending data:', data);
+            navigate(`/${data.room.roomCode}/lobby`, {state: data});
         });
-    }
-    
+    };
+
     const onHostButton = async () => {
-        console.log("Host");
+        console.log('Host');
         if (!nickname || !roomCode) {
-            console.log("FILL IN NAME OR ROOMCODE");
+            console.log('FILL IN NAME OR ROOMCODE');
             return;
         }
         let createRes = await server.putRoom(roomCode);
@@ -44,57 +53,63 @@ export default function Home() {
             return;
         }
         joinRoom();
-    }
+    };
 
     const onJoinButton = async () => {
-        console.log("Join");
+        console.log('Join');
         if (!nickname || !roomCode) {
-            console.log("FILL IN NAME OR ROOMCODE");
+            console.log('FILL IN NAME OR ROOMCODE');
             return;
         }
         joinRoom();
-    }
+    };
 
     return (
         <div>
             <div className="title">
                 <h1>DownGoose!</h1>
             </div>
-            <div className='goose-image'>
+            <div className="goose-image">
                 <img
                     className="home-goose-image"
                     src="/goose/goose.png"
                     alt="Card"
                     width={100}
-                    height={100} 
+                    height={100}
                 />
             </div>
-            <div className='lobby-form'>
+            <div className="lobby-form">
                 <p>Nickname:</p>
-                <textarea 
-                    className="nickname" 
+                <textarea
+                    className="nickname"
                     style={{
-                        resize:"none"
+                        resize: 'none',
                     }}
-                    value={nickname} 
-                    onChange={e => {
-                        const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
-                        setNickname(value)
-                    }} 
+                    value={nickname}
+                    onChange={(e) => {
+                        const value = e.target.value.replace(
+                            /[\r\n\v" "]+/g,
+                            ''
+                        );
+                        setNickname(value);
+                    }}
                     rows={1}
                     maxLength={16}
                 />
                 <p>Join Code</p>
-                <textarea 
-                    className="gameJoinCode" 
+                <textarea
+                    className="gameJoinCode"
                     style={{
-                        resize:"none"
+                        resize: 'none',
                     }}
-                    value={roomCode} 
-                    onChange={e => {
-                        const value = e.target.value.replace(/[\r\n\v" "]+/g, "");
+                    value={roomCode}
+                    onChange={(e) => {
+                        const value = e.target.value.replace(
+                            /[\r\n\v" "]+/g,
+                            ''
+                        );
                         setRoomCode(value);
-                    }} 
+                    }}
                     rows={1}
                     maxLength={16}
                 />
@@ -107,5 +122,5 @@ export default function Home() {
                 </button>
             </div>
         </div>
-    )
+    );
 }

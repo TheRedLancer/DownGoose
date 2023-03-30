@@ -2,10 +2,10 @@
   Author: Zach Burnaby
   Project: DownGoose
 */
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from "react-router-dom"
+import {useState, useEffect} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import PlayerReadyDisplay from '../components/PlayerReadyDisplay';
-import { lobbySocket } from '../socket';
+import {lobbySocket} from '../socket';
 
 export default function Lobby() {
     const [parsedLocationState, setParsedLocationState] = useState(false);
@@ -13,15 +13,15 @@ export default function Lobby() {
     const [player, setPlayer] = useState<LobbyPlayer | undefined>(undefined);
     const [players, setPlayers] = useState<LobbyPlayers>([]);
     const [ready, setReady] = useState(false);
-    const [roomCode, setRoomCode] = useState("");
-    const [roomId, setRoomId] = useState("");
+    const [roomCode, setRoomCode] = useState('');
+    const [roomId, setRoomId] = useState('');
 
     const {state} = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!parsedLocationState) {
-            console.log("STATE", state)
+            console.log('STATE', state);
             setPlayer({
                 nickname: state.player.nickname,
                 id: state.playerId,
@@ -36,7 +36,7 @@ export default function Lobby() {
     useEffect(() => {
         // no-op if the socket is already connected
         if (roomCode && roomId) {
-            console.log("Attempting to connect to ", roomCode);
+            console.log('Attempting to connect to ', roomCode);
             lobbySocket.connect();
         }
         return () => {
@@ -47,52 +47,61 @@ export default function Lobby() {
     useEffect(() => {
         function onConnect() {
             setIsConnected(true);
-            console.log("Connected to:", roomId);
+            console.log('Connected to:', roomId);
             lobbySocket.emit('join-room', player!.id, player!.nickname, roomId);
         }
 
         function onPing() {
-            console.log("got ping");
+            console.log('got ping');
             lobbySocket.volatile.emit('pong');
         }
 
-        function onJoin( playerData: LobbyPlayers ) {
-            setPlayers(playerData.filter(pd => pd.id !== player!.id));
+        function onJoin(playerData: LobbyPlayers) {
+            setPlayers(playerData.filter((pd) => pd.id !== player!.id));
         }
 
         function onPlayerJoin(otherPlayerId: string, playerData: LobbyPlayers) {
-            console.log("Got player-join:", otherPlayerId);
-            setPlayers(playerData.filter(pd => pd.id !== player!.id));
+            console.log('Got player-join:', otherPlayerId);
+            setPlayers(playerData.filter((pd) => pd.id !== player!.id));
         }
 
-        function onPlayerLeave(otherPlayerId: string, playerData: LobbyPlayers) {
-            console.log("Got player-leave:", otherPlayerId);
-            setPlayers(playerData.filter(pd => pd.id !== player!.id));
-        } 
-
-        function onPlayerReady(otherPlayerId: string, playerData: LobbyPlayers) {
-            console.log("Got player-ready:", otherPlayerId);
-            setPlayers(playerData.filter(pd => pd.id !== player!.id));
+        function onPlayerLeave(
+            otherPlayerId: string,
+            playerData: LobbyPlayers
+        ) {
+            console.log('Got player-leave:', otherPlayerId);
+            setPlayers(playerData.filter((pd) => pd.id !== player!.id));
         }
 
-        function onPlayerUnready(otherPlayerId: string, playerData: LobbyPlayers) {
-            console.log("Got player-unready:", otherPlayerId);
-            setPlayers(playerData.filter(pd => pd.id !== player!.id));
+        function onPlayerReady(
+            otherPlayerId: string,
+            playerData: LobbyPlayers
+        ) {
+            console.log('Got player-ready:', otherPlayerId);
+            setPlayers(playerData.filter((pd) => pd.id !== player!.id));
+        }
+
+        function onPlayerUnready(
+            otherPlayerId: string,
+            playerData: LobbyPlayers
+        ) {
+            console.log('Got player-unready:', otherPlayerId);
+            setPlayers(playerData.filter((pd) => pd.id !== player!.id));
         }
 
         function onDisconnect() {
-            console.log("got disconnect");
+            console.log('got disconnect');
             setIsConnected(false);
         }
 
         function onGameStart(playerId: string, gameState: GameState) {
-            console.log("gotGameStart");
+            console.log('gotGameStart');
             let data = {
                 gameState: gameState,
-                player: player
-            }
+                player: player,
+            };
             console.log(data);
-            navigate(`/${gameState.roomCode}/game`, { state: data });
+            navigate(`/${gameState.roomCode}/game`, {state: data});
         }
 
         if (player) {
@@ -106,7 +115,7 @@ export default function Lobby() {
             lobbySocket.on('game-start', onGameStart);
             lobbySocket.on('disconnect', onDisconnect);
         }
-    
+
         return () => {
             lobbySocket.off('connect', onConnect);
             lobbySocket.off('ping', onPing);
@@ -122,11 +131,11 @@ export default function Lobby() {
 
     function toggleReady() {
         if (!isConnected) {
-            console.log("Not Connected!");
+            console.log('Not Connected!');
             return;
         }
         if (!player) {
-            console.log("no player");
+            console.log('no player');
             return;
         }
         if (player.ready) {
@@ -134,23 +143,23 @@ export default function Lobby() {
             let newPlayer = player;
             newPlayer.ready = false;
             setReady(newPlayer.ready);
-            setPlayer(newPlayer)
+            setPlayer(newPlayer);
         } else {
             lobbySocket.emit('ready', player.id, roomId);
             let newPlayer = player;
             newPlayer.ready = true;
             setReady(newPlayer.ready);
-            setPlayer(newPlayer)
+            setPlayer(newPlayer);
         }
     }
-    
+
     function startGame() {
         if (!isConnected) {
-            console.log("Not Connected!");
+            console.log('Not Connected!');
             return;
         }
         if (!player) {
-            console.log("no player");
+            console.log('no player');
             return;
         }
         // TODO: Uncomment to make people wait till everyone is ready
@@ -161,7 +170,7 @@ export default function Lobby() {
         //     }
         // }
         // if (allReady) {
-            lobbySocket.emit('start-game', player.id, roomId);
+        lobbySocket.emit('start-game', player.id, roomId);
         // } else {
         //     console.log("Someone isn't ready");
         // }
@@ -170,16 +179,23 @@ export default function Lobby() {
     const isPlayerReady = player?.ready.toString();
 
     return (
-        <div className='lobby'>
-            <h1>
-                Join Code: {roomCode || "No room code"}
-            </h1>
+        <div className="lobby">
+            <h1>Join Code: {roomCode || 'No room code'}</h1>
             <h3>You: {player?.nickname}</h3>
             <h2>Are you ready? {isPlayerReady}</h2>
-            <button onClick={() => {toggleReady()}}>{ready ? "Unready" : "Ready Up"}</button>
-            <button onClick={() => {startGame()}}>Start game!</button>
+            <button
+                onClick={() => {
+                    toggleReady();
+                }}>
+                {ready ? 'Unready' : 'Ready Up'}
+            </button>
+            <button
+                onClick={() => {
+                    startGame();
+                }}>
+                Start game!
+            </button>
             <PlayerReadyDisplay players={players} />
         </div>
-    )
+    );
 }
-

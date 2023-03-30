@@ -1,10 +1,12 @@
 # TODO
+
 - filter room codes, only allow AlphaNumeric 3-16 or something
 - check name clashes in lobby for join
 - Auto-gen name
 - identicon node package
 
 ### How to do it
+
 ```
 onConnect => {
     send data to the client about the requested room

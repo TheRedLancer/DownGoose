@@ -5,7 +5,7 @@ CONTAINER_NAME=downgoose
 
 run: remove build
 	@echo Running...
-	docker run -d --env-file ./backend/.env -p 8000:8000 --restart=always --name $(CONTAINER_NAME) $(CONTAINER_NAME):$(VERSION)
+	docker run -d --env-file ./backend/.env.production -p 8000:8000 --restart=always --name $(CONTAINER_NAME) $(CONTAINER_NAME):$(VERSION)
 
 build:
 	@echo Building...

@@ -1,7 +1,6 @@
-import { EntityId, EntityData, EntityDataValue, Entity, FieldType} from "redis-om";
-import { roomRepo, playerRepo } from "./db.js";
-import { config } from './config.js';
-import { nanoid } from 'nanoid'
+import {roomRepo, playerRepo} from './db.js';
+import {config} from './config.js';
+import {nanoid} from 'nanoid';
 
 function makePlayer(nickname: string, roomCode: string): Player {
     return {
@@ -13,8 +12,8 @@ function makePlayer(nickname: string, roomCode: string): Player {
         currentRotation: -1,
         ready: false,
         action: -1,
-        id: nanoid()
-    }
+        id: nanoid(),
+    };
 }
 
 function makeRoom(roomCode: string): Room {
@@ -29,12 +28,12 @@ function makeRoom(roomCode: string): Room {
         activePlayer: 0,
         gameOver: false,
         numberQuacked: 0,
-        id: nanoid()
-    }
+        id: nanoid(),
+    };
 }
 
 function now_seconds() {
-    return Math.floor((new Date()).getTime() / 1000);
+    return Math.floor(new Date().getTime() / 1000);
 }
 
 /**
@@ -43,15 +42,15 @@ function now_seconds() {
  */
 async function getPlayersInRoom(room: Room): Promise<Player[]> {
     const players = room.players.map(async (playerId: string) => {
-        const player_r = await playerRepo.fetch(playerId) as Player;
+        const player_r = (await playerRepo.fetch(playerId)) as Player;
         return player_r;
     });
     return Promise.all(players);
 }
 
-export async function createGameRoom(roomCode : string) {
+export async function createGameRoom(roomCode: string) {
     const room = makeRoom(roomCode);
-    const room_r = await roomRepo.save(room.id, room) as Room;
+    const room_r = (await roomRepo.save(room.id, room)) as Room;
     if (!room_r) {
         return null;
     }
@@ -60,66 +59,73 @@ export async function createGameRoom(roomCode : string) {
 }
 
 export async function addPlayerToRoomCode(roomCode: string, nickname: string) {
-    const room = await roomRepo.search().where('roomCode').equals(roomCode).return.first() as Room | null
+    const room = (await roomRepo
+        .search()
+        .where('roomCode')
+        .equals(roomCode)
+        .return.first()) as Room | null;
     if (!room) {
-        throw new Error(`Room ${roomCode} does not exist`);
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
     return addPlayerToRoom(room, nickname);
 }
 
-export async function addPlayerToRoom(room: Room, nickname: string): Promise<[Room, Player]> {
-    const player = makePlayer(nickname, room.roomCode)
-    const player_r = await playerRepo.save(player.id, player) as Player;
+export async function addPlayerToRoom(
+    room: Room,
+    nickname: string
+): Promise<[Room, Player]> {
+    const player = makePlayer(nickname, room.roomCode);
+    const player_r = (await playerRepo.save(player.id, player)) as Player;
     await playerRepo.expire(player_r.id, config.HOUR_EXPIRATION);
     room.lastInteraction = now_seconds();
     room.playerJoined = now_seconds();
     room.players.push(player_r.id);
-    const room_r = await roomRepo.save(room) as Room;
+    const room_r = (await roomRepo.save(room)) as Room;
     return [room_r, player_r];
 }
 
 export async function getLobbyData(roomId: string): Promise<LobbyPlayer[]> {
-    let room = await roomRepo.fetch(roomId) as Room | null;
+    let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
-    let players = (await getPlayersInRoom(room)).map(player => {
-        let player_data : LobbyPlayer = {
+    let players = (await getPlayersInRoom(room)).map((player) => {
+        let player_data: LobbyPlayer = {
             nickname: player.nickname,
             id: player.id,
-            ready: player.ready
-        }
+            ready: player.ready,
+        };
         return player_data;
-    })
+    });
     return players;
 }
 
 export async function readyPlayer(playerId: string, ready: boolean) {
-    let player = await playerRepo.fetch(playerId) as Player | null;
+    let player = (await playerRepo.fetch(playerId)) as Player | null;
     console.log(player);
     if (!player) {
-        throw new Error("Player does not exist");
+        throw new Error(DGERROR.PlayerDoesNotExist);
     }
     player.ready = ready;
     await playerRepo.save(player);
 }
 
-export async function startGame(roomId: string)  {
-    let room = await roomRepo.fetch(roomId) as Room | null;
+export async function startGame(roomId: string) {
+    let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
     const players = room.players.map(async (playerId: string) => {
-        let player = await playerRepo.fetch(playerId) as Player | null;
+        let player = (await playerRepo.fetch(playerId)) as Player | null;
         if (!player) {
-            throw new Error("Player does not exist");
+            throw new Error(DGERROR.PlayerDoesNotExist);
         }
         // Give each player a card
         player.cardColors = generateCard();
         // Set each players card's rotation
         player.currentRotation = Math.floor(Math.random() * 4);
         player.ready = false;
-        return await playerRepo.save(player) as Player;
+        return (await playerRepo.save(player)) as Player;
     });
     // Set start game time
     room.startGame = now_seconds();
@@ -128,23 +134,23 @@ export async function startGame(roomId: string)  {
     // Choose random start player
     room.activePlayer = Math.floor(Math.random() * room.players.length);
 
-    let room_r = await roomRepo.save(room) as Room;
+    let room_r = (await roomRepo.save(room)) as Room;
     return Promise.all([room_r, Promise.all(players)]);
 }
 
 function generateCard(): string[] {
     let card = ['0', '1', '2', '3'];
     for (let i = card.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (card.length));
+        const j = Math.floor(Math.random() * card.length);
         [card[i], card[j]] = [card[j], card[i]];
     }
     return card;
 }
 
 export async function getGameData(roomId: string): Promise<GameState> {
-    let room = await roomRepo.fetch(roomId) as Room | null;
+    let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
     let players = await getPlayersInRoom(room);
     return gameState(room, players);
@@ -164,8 +170,8 @@ export function gameState(room: Room, players: Player[]): GameState {
             currentRotation: player.currentRotation,
             action: player.action,
             ready: player.ready,
-            id: player.id
-        }
+            id: player.id,
+        };
     });
 
     let state: GameState = {
@@ -175,15 +181,19 @@ export function gameState(room: Room, players: Player[]): GameState {
         activePlayer: room.players[room.activePlayer],
         gameOver: room.gameOver,
         numberQuacked: room.numberQuacked,
-    }
+    };
 
     return state;
 }
 
-export async function setColorAction(playerId: string, roomId: string, color: number): Promise<GameState> {
-    const room = await roomRepo.fetch(roomId) as Room | null;
+export async function setColorAction(
+    playerId: string,
+    roomId: string,
+    color: number
+): Promise<GameState> {
+    const room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
     const players = await getPlayersInRoom(room);
     const players_r = players.map(async (player) => {
@@ -191,56 +201,67 @@ export async function setColorAction(playerId: string, roomId: string, color: nu
             player.action = color;
         }
         player.ready = false;
-        return await playerRepo.save(player) as Player;
+        return (await playerRepo.save(player)) as Player;
     });
     return gameState(room, await Promise.all(players_r));
 }
 
 export async function setQuackAction(playerId: string, roomId: string) {
-    const room = await roomRepo.fetch(roomId) as Room | null;
+    const room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
     room.numberQuacked = 0;
     const players = await getPlayersInRoom(room);
-    const players_r = await Promise.all(players.map(async (player) => {
-        if (player.id === playerId) {
-            player.action = 4;
-        } else if (player.currentRotation === 0) {
-            room.numberQuacked += 1;
-        }
-        player.ready = false;
-        return await playerRepo.save(player) as Player;
-    }));
+    const players_r = await Promise.all(
+        players.map(async (player) => {
+            if (player.id === playerId) {
+                player.action = 4;
+            } else if (player.currentRotation === 0) {
+                room.numberQuacked += 1;
+            }
+            player.ready = false;
+            return (await playerRepo.save(player)) as Player;
+        })
+    );
     return gameState(room, players_r);
 }
 
-export async function colorResponse(playerId: string, roomId: string, isRotating: boolean) {
-    let room = await roomRepo.fetch(roomId) as Room | null;
+export async function colorResponse(
+    playerId: string,
+    roomId: string,
+    isRotating: boolean
+) {
+    let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error("Room does not exist");
+        throw new Error(DGERROR.RoomDoesNotExist);
     }
-    const activePlayer = await playerRepo.fetch(room.players[room.activePlayer]) as Player | null;
+    const activePlayer = (await playerRepo.fetch(
+        room.players[room.activePlayer]
+    )) as Player | null;
     if (!activePlayer) {
-        throw new Error("Player does not exist");
+        throw new Error(DGERROR.PlayerDoesNotExist);
     }
     const calledColor = (activePlayer.action as number).toString();
-    let currentPlayer = await playerRepo.fetch(playerId) as Player | null;
+    let currentPlayer = (await playerRepo.fetch(playerId)) as Player | null;
     if (!currentPlayer) {
-        throw new Error("Player does not exist");
+        throw new Error(DGERROR.PlayerDoesNotExist);
     }
     if (isRotating) {
-        currentPlayer.currentRotation = (currentPlayer.cardColors).indexOf(calledColor);
+        currentPlayer.currentRotation =
+            currentPlayer.cardColors.indexOf(calledColor);
     }
     currentPlayer.ready = true;
     await playerRepo.save(currentPlayer);
     let players = await getPlayersInRoom(room);
     if (checkTurnOver(players)) {
         nextTurn(room, players);
-        room = await roomRepo.save(room) as Room;
-        players = await Promise.all(players.map(async (player) => {
-            return await playerRepo.save(player) as Player;
-        }));
+        room = (await roomRepo.save(room)) as Room;
+        players = await Promise.all(
+            players.map(async (player) => {
+                return (await playerRepo.save(player)) as Player;
+            })
+        );
     }
     return gameState(room, players);
 }
@@ -249,21 +270,26 @@ export async function quackResponse(playerId: string, roomId: string) {
     const player = await playerRepo.fetch(playerId);
     player.ready = true;
     await playerRepo.save(player);
-    let room = await roomRepo.fetch(roomId) as Room;
+    let room = (await roomRepo.fetch(roomId)) as Room | null;
+    if (!room) {
+        throw new Error(DGERROR.RoomDoesNotExist);
+    }
     let players = await getPlayersInRoom(room);
     if (checkTurnOver(players)) {
-        const gameOver = checkGameOver(players)
+        const gameOver = checkGameOver(players);
         if (gameOver) {
             room.gameOver = true;
         }
         nextTurn(room, players);
-        room = await roomRepo.save(room) as Room;
-        players = await Promise.all(players.map(async (player) => {
-            if (!gameOver) {
-                player.currentRotation = (player.currentRotation + 2) % 4;
-            }
-            return await playerRepo.save(player) as Player;
-        }));
+        room = (await roomRepo.save(room)) as Room;
+        players = await Promise.all(
+            players.map(async (player) => {
+                if (!gameOver) {
+                    player.currentRotation = (player.currentRotation + 2) % 4;
+                }
+                return (await playerRepo.save(player)) as Player;
+            })
+        );
     }
     return gameState(room, players);
 }

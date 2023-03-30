@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-function getDefault<T>(value: (T | undefined), defaultValue: T): T {
+function getDefault<T>(value: T | undefined, defaultValue: T): T {
     if (!value || value === 'undefined') {
         return defaultValue;
     }
@@ -12,20 +12,21 @@ function addPortToAllowedHosts(endpoints: string[], ports: number[]) {
     let out: string[] = [];
     for (const ep of endpoints) {
         for (const port of ports) {
-            out.push(ep + ":" + port);
+            out.push(ep + ':' + port);
         }
     }
     return out;
 }
 
 const ENDPOINTS = [
-    getDefault(process.env.URL, "http://localhost"),
-    "http://127.0.0.1",
-    "https://admin.socket.io"
-]
+    getDefault(process.env.URL, 'http://localhost'),
+    'http://127.0.0.1',
+    'https://admin.socket.io',
+];
 
 export const config: any = {
-    IS_DEVELOPMENT: getDefault(process.env.NODE_ENV, 'development') !== 'production',
+    IS_DEVELOPMENT:
+        getDefault(process.env.NODE_ENV, 'development') !== 'production',
     DEFAULT_MAX_PLAYERS: 14,
     DEFAULT_EXPIRATION: 60 * 3,
     HOUR_EXPIRATION: 60 * 60, // one hour
@@ -33,6 +34,6 @@ export const config: any = {
     ALLOWED_HOSTS: addPortToAllowedHosts(ENDPOINTS, [3000]),
     REDIS_HOSTNAME: getDefault(process.env.REDIS_URL, 'localhost'),
     REDIS_PORT: getDefault(process.env.REDIS_PORT, '18346'),
-    REDIS_USER: "default",
-    REDIS_PASS: getDefault(process.env.REDIS_PASS, ""),
-}
+    REDIS_USER: 'default',
+    REDIS_PASS: getDefault(process.env.REDIS_PASS, ''),
+};
