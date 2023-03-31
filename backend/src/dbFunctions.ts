@@ -37,57 +37,118 @@ function now_seconds() {
 }
 
 /**
+ * @throws {DGERROR.PlayerNotFound}
  * @param room database entity
  * @returns List of players
  */
 async function getPlayersInRoom(room: Room): Promise<Player[]> {
     const players = room.players.map(async (playerId: string) => {
         const player_r = (await playerRepo.fetch(playerId)) as Player;
+        if (!player_r) {
+            throw new Error(DGERROR.PlayerNotFound);
+        }
         return player_r;
     });
     return Promise.all(players);
 }
 
-export async function createGameRoom(roomCode: string) {
+/**
+ * @throws {DGERROR.UnknownRedisError}
+ * @param roomCode
+ */
+export async function createGameRoom(roomCode: string): Promise<Room> {
     const room = makeRoom(roomCode);
-    const room_r = (await roomRepo.save(room.id, room)) as Room;
+    const room_r = (await roomRepo.save(room.id, room)) as Room | null;
     if (!room_r) {
-        return null;
+        throw new Error(DGERROR.UnknownRedisError);
     }
     await roomRepo.expire(room_r.id, config.HOUR_EXPIRATION);
     return room_r;
 }
 
-export async function addPlayerToRoomCode(roomCode: string, nickname: string) {
+/**
+ * Adds player to a room
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.UnknownRedisError}
+ * @param roomCode
+ * @param nickname
+ * @returns {Promise<[Room, Player]>}
+ */
+export async function addPlayerToRoomCode(
+    roomCode: string,
+    nickname: string
+): Promise<[Room, Player]> {
     const room = (await roomRepo
         .search()
         .where('roomCode')
         .equals(roomCode)
         .return.first()) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     return addPlayerToRoom(room, nickname);
 }
 
+export async function roomExists(
+    roomId: string | undefined,
+    roomCode: string | undefined
+): Promise<boolean> {
+    if (roomId) {
+        const room = await roomRepo.fetch(roomId);
+        if (room) {
+            return true;
+        }
+    }
+    if (roomCode) {
+        const room = await roomRepo
+            .search()
+            .where('roomCode')
+            .equals(roomCode)
+            .return.first();
+        if (room) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @throws {DGERROR.UnknownRedisError}
+ * @param room
+ * @param nickname
+ */
 export async function addPlayerToRoom(
     room: Room,
     nickname: string
 ): Promise<[Room, Player]> {
     const player = makePlayer(nickname, room.roomCode);
-    const player_r = (await playerRepo.save(player.id, player)) as Player;
+    const player_r = (await playerRepo.save(
+        player.id,
+        player
+    )) as Player | null;
+    if (!player_r) {
+        throw new Error(DGERROR.UnknownRedisError);
+    }
     await playerRepo.expire(player_r.id, config.HOUR_EXPIRATION);
     room.lastInteraction = now_seconds();
     room.playerJoined = now_seconds();
     room.players.push(player_r.id);
-    const room_r = (await roomRepo.save(room)) as Room;
+    const room_r = (await roomRepo.save(room)) as Room | null;
+    if (!room_r) {
+        throw new Error(DGERROR.UnknownRedisError);
+    }
     return [room_r, player_r];
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param roomId
+ */
 export async function getLobbyData(roomId: string): Promise<LobbyPlayer[]> {
     let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     let players = (await getPlayersInRoom(room)).map((player) => {
         let player_data: LobbyPlayer = {
@@ -100,25 +161,35 @@ export async function getLobbyData(roomId: string): Promise<LobbyPlayer[]> {
     return players;
 }
 
+/**
+ * @throws {DGERROR.PlayerNotFound}
+ * @param playerId
+ * @param ready
+ */
 export async function readyPlayer(playerId: string, ready: boolean) {
     let player = (await playerRepo.fetch(playerId)) as Player | null;
     console.log(player);
     if (!player) {
-        throw new Error(DGERROR.PlayerDoesNotExist);
+        throw new Error(DGERROR.PlayerNotFound);
     }
     player.ready = ready;
     await playerRepo.save(player);
 }
 
-export async function startGame(roomId: string) {
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param roomId
+ */
+export async function startGame(roomId: string): Promise<[Room, Player[]]> {
     let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     const players = room.players.map(async (playerId: string) => {
         let player = (await playerRepo.fetch(playerId)) as Player | null;
         if (!player) {
-            throw new Error(DGERROR.PlayerDoesNotExist);
+            throw new Error(DGERROR.PlayerNotFound);
         }
         // Give each player a card
         player.cardColors = generateCard();
@@ -134,7 +205,7 @@ export async function startGame(roomId: string) {
     // Choose random start player
     room.activePlayer = Math.floor(Math.random() * room.players.length);
 
-    let room_r = (await roomRepo.save(room)) as Room;
+    let room_r = roomRepo.save(room) as Promise<Room>;
     return Promise.all([room_r, Promise.all(players)]);
 }
 
@@ -147,10 +218,15 @@ function generateCard(): string[] {
     return card;
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param roomId
+ */
 export async function getGameData(roomId: string): Promise<GameState> {
     let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     let players = await getPlayersInRoom(room);
     return gameState(room, players);
@@ -186,6 +262,13 @@ export function gameState(room: Room, players: Player[]): GameState {
     return state;
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param playerId
+ * @param roomId
+ * @param color
+ */
 export async function setColorAction(
     playerId: string,
     roomId: string,
@@ -193,7 +276,7 @@ export async function setColorAction(
 ): Promise<GameState> {
     const room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     const players = await getPlayersInRoom(room);
     const players_r = players.map(async (player) => {
@@ -206,10 +289,16 @@ export async function setColorAction(
     return gameState(room, await Promise.all(players_r));
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param playerId
+ * @param roomId
+ */
 export async function setQuackAction(playerId: string, roomId: string) {
     const room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     room.numberQuacked = 0;
     const players = await getPlayersInRoom(room);
@@ -227,6 +316,13 @@ export async function setQuackAction(playerId: string, roomId: string) {
     return gameState(room, players_r);
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param playerId
+ * @param roomId
+ * @param isRotating
+ */
 export async function colorResponse(
     playerId: string,
     roomId: string,
@@ -234,18 +330,18 @@ export async function colorResponse(
 ) {
     let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     const activePlayer = (await playerRepo.fetch(
         room.players[room.activePlayer]
     )) as Player | null;
     if (!activePlayer) {
-        throw new Error(DGERROR.PlayerDoesNotExist);
+        throw new Error(DGERROR.PlayerNotFound);
     }
     const calledColor = (activePlayer.action as number).toString();
     let currentPlayer = (await playerRepo.fetch(playerId)) as Player | null;
     if (!currentPlayer) {
-        throw new Error(DGERROR.PlayerDoesNotExist);
+        throw new Error(DGERROR.PlayerNotFound);
     }
     if (isRotating) {
         currentPlayer.currentRotation =
@@ -266,13 +362,22 @@ export async function colorResponse(
     return gameState(room, players);
 }
 
+/**
+ * @throws {DGERROR.RoomNotFound}
+ * @throws {DGERROR.PlayerNotFound}
+ * @param playerId
+ * @param roomId
+ */
 export async function quackResponse(playerId: string, roomId: string) {
-    const player = await playerRepo.fetch(playerId);
+    const player = (await playerRepo.fetch(playerId)) as Player | null;
+    if (!player) {
+        throw new Error(DGERROR.PlayerNotFound);
+    }
     player.ready = true;
     await playerRepo.save(player);
     let room = (await roomRepo.fetch(roomId)) as Room | null;
     if (!room) {
-        throw new Error(DGERROR.RoomDoesNotExist);
+        throw new Error(DGERROR.RoomNotFound);
     }
     let players = await getPlayersInRoom(room);
     if (checkTurnOver(players)) {

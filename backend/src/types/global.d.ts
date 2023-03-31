@@ -38,20 +38,6 @@ declare global {
 
     type LobbyPlayers = LobbyPlayer[];
 
-    type PlayerResponse = {
-        room: Entity | null | undefined;
-        roomId: string | null | undefined;
-        player: Entity | null | undefined;
-        playerId: string | null | undefined;
-        message: string;
-    };
-
-    type RoomResponse = {
-        room: Entity | null | undefined;
-        roomId: string | null | undefined;
-        message: string;
-    };
-
     type GamePlayer = {
         nickname: string;
         cardColors: string[];
@@ -71,10 +57,13 @@ declare global {
     };
 
     enum DGERROR {
-        RoomDoesNotExist = 'RoomDoesNotExist',
-        PlayerDoesNotExist = 'PlayerDoesNotExist',
+        RoomNotFound = 'RoomNotFound',
+        PlayerNotFound = 'PlayerNotFound',
         GameInProgress = 'GameInProgress',
         InvalidActionOption = 'InvalidActionOption',
         PlayerNotReady = 'PlayerNotReady',
+        UnknownRedisError = 'UnknownRedisError',
+        FailCreateRoom = 'FailCreateRoom',
+        RoomExists = 'RoomExists',
     }
 }

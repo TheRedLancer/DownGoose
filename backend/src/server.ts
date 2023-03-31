@@ -3,10 +3,7 @@ import {fileURLToPath} from 'url';
 import cors from 'cors';
 import path from 'path';
 import {config} from './config.js';
-import {
-    createRoomFromRequest,
-    addPlayerToRoomFromRequest,
-} from './serverFunctions.js';
+import {addPlayerToRoomCode, createGameRoom} from './dbFunctions.js';
 
 const port = process.env.SERVER_PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -28,12 +25,35 @@ export default function startExpress() {
         '/api/room/create',
         express.json(),
         async (req: Request, res: Response) => {
-            // TODO: Add error handling for if room already exists
-            //console.log("create body", req.body);
-            console.log('create');
-            let [status, data] = await createRoomFromRequest(req);
-            res.status(status).send(data);
-            console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+            console.log('create room');
+            try {
+                const data = await createGameRoom(req.body.roomCode);
+                res.status(201).send(data);
+            } catch (e) {
+                if (e instanceof Error) {
+                    console.log(e);
+                    switch (e.message) {
+                        case DGERROR.RoomExists:
+                            res.status(409).send({
+                                message: DGERROR.RoomExists,
+                            });
+                            break;
+                        case DGERROR.UnknownRedisError:
+                        // Fallthrough on purpose
+                        case DGERROR.FailCreateRoom:
+                            res.status(409).send({
+                                message: DGERROR.FailCreateRoom,
+                            });
+                            break;
+                        default:
+                            res.status(500).send({
+                                message: 'InternalServerError',
+                            });
+                    }
+                    res.status(500).send({message: e.message});
+                }
+            }
+            res.status(500).send({message: 'InternalServerError'});
         }
     );
 
@@ -41,21 +61,33 @@ export default function startExpress() {
         '/api/room/add_player',
         express.json(),
         async (req: Request, res: Response) => {
-            // console.log("add_player body", req.body);
             console.log('add_player');
             try {
-                let [status, data] = await addPlayerToRoomFromRequest(req);
-                if (typeof status === 'number') {
-                    //console.log("status:", status, "data:", data);
-                    res.status(status).send(data);
-                } else {
-                    res.status(500).send(data);
+                let [room, player] = await addPlayerToRoomCode(
+                    req.body.roomCode,
+                    req.body.nickname
+                );
+                // TODO: Add send to client
+            } catch (e) {
+                if (e instanceof Error) {
+                    console.log(e);
+                    switch (e.message) {
+                        case DGERROR.UnknownRedisError:
+                        // Fallthrough on purpose
+                        case DGERROR.RoomNotFound:
+                            res.status(404).send({
+                                message: DGERROR.RoomNotFound,
+                            });
+                            break;
+                        default:
+                            res.status(500).send({
+                                message: 'InternalServerError',
+                            });
+                    }
+                    res.status(500).send({message: e.message});
                 }
-            } catch (error) {
-                console.log(error);
-                res.status(400).send({});
             }
-            console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+            res.status(500).send({message: 'InternalServerError'});
         }
     );
 

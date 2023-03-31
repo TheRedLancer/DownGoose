@@ -26,6 +26,7 @@ declare global {
         players: string[];
         activePlayer: number;
         gameOver: boolean;
+        numberQuacked: number;
         id: string;
     };
 
@@ -68,4 +69,12 @@ declare global {
         numberQuacked: number;
         gameOver: boolean;
     };
+
+    enum DGERROR {
+        RoomDoesNotExist = 'RoomDoesNotExist',
+        PlayerDoesNotExist = 'PlayerDoesNotExist',
+        GameInProgress = 'GameInProgress',
+        InvalidActionOption = 'InvalidActionOption',
+        PlayerNotReady = 'PlayerNotReady',
+    }
 }
