@@ -4,7 +4,7 @@ import {Server} from 'socket.io';
 import {createServer} from 'http';
 import {config} from './config.js';
 
-const port = process.env.SERVER_PORT || 3000;
+const port = process.env.PORT || 3000;
 
 const app = startExpress();
 const server = createServer(app);

@@ -3,6 +3,7 @@ import {instrument} from '@socket.io/admin-ui';
 import GameManager from './gameManager.js';
 import {Server} from 'socket.io';
 import {DefaultEventsMap} from 'socket.io/dist/typed-events.js';
+import { config } from './config.js';
 
 export default function startSocket(
     io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
@@ -17,8 +18,11 @@ export default function startSocket(
         console.log(err.context); // some additional error context
     });
 
-    instrument(io, {
-        auth: false,
-        mode: 'development',
-    });
+    if (config.IS_DEVELOPMENT) {
+        instrument(io, {
+            auth: false,
+            mode: 'development',
+        });
+    }
+    
 }

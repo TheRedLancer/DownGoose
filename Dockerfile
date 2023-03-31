@@ -18,6 +18,4 @@ COPY --from=backend-builder ./app/dist ./dist
 COPY --from=frontend-builder ./app/dist ./dist/public
 COPY ./backend/package* ./
 RUN npm install --omit=dev
-EXPOSE 3000
-EXPOSE 8000
 CMD npm start

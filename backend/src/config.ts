@@ -20,8 +20,8 @@ function addPortToAllowedHosts(endpoints: string[], ports: number[]) {
 }
 
 const ENDPOINTS = [
-    getDefault(process.env.URL, 'http://localhost'),
-    'http://127.0.0.1',
+    getDefault(process.env.URL, 'localhost'),
+    '127.0.0.1',
     'https://admin.socket.io',
 ];
 

@@ -1,5 +1,7 @@
+const baseURL =
+    import.meta.env.VITE_SERVER_URL + ':' + import.meta.env.VITE_SERVER_PORT;
 async function putRoom(roomCode: string) {
-    const res = await fetch('http://localhost:3000/api/room/create', {
+    const res = await fetch(baseURL + '/api/room/create', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -12,7 +14,7 @@ async function putRoom(roomCode: string) {
 }
 
 async function putPlayerInRoom(roomCode: string, nickname: string) {
-    const res = await fetch('http://localhost:3000/api/room/add_player', {
+    const res = await fetch(baseURL + '/api/room/add_player', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

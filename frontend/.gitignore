@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 public/goose
+.env.development
+.env.production
+.env

@@ -15,10 +15,14 @@ run-prod: remove build-prod
 
 build-dev:
 	@echo Building Dev...
-	docker build -t $(CONTAINER_NAME)-dev:$(VERSION) ./
+	docker build -t $(CONTAINER_NAME)-dev:$(VERSION) -f Dockerfile.dev .
 
 build-prod:
 	@echo Building Prod...
+	docker build -t $(CONTAINER_NAME)-prod:$(VERSION) ./
+
+build-gcrun:
+	@echo Building GCrun...
 	docker build -t $(CONTAINER_NAME)-prod:$(VERSION) ./
 
 remove: stop

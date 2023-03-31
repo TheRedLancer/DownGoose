@@ -30,18 +30,19 @@ export default function Home() {
                     state: nav_data,
                 });
             });
+        } else {
+            console.log(`Error: could not join room ${roomCode}`);
+            await joinRes.json().then((data) => {
+                switch (data.message) {
+                    case DGERROR.RoomNotFound:
+                        roomExists(data);
+                        break;
+                    default:
+                        console.log('UNKNOWN ERROR', data);
+                        break;
+                }
+            });
         }
-        console.log(`Error: could not join room ${roomCode}`);
-        await joinRes.json().then((data) => {
-            switch (data.message) {
-                case DGERROR.RoomNotFound:
-                    roomExists(data);
-                    break;
-                default:
-                    console.log('UNKNOWN ERROR', data);
-                    break;
-            }
-        });
     };
 
     const onHostButton = async () => {
@@ -57,20 +58,21 @@ export default function Home() {
         console.log(createRes);
         if (createRes.status === 201) {
             joinRoom();
+        } else {
+            console.log(`Error: could not create room ${roomCode}`);
+            await createRes.json().then((data) => {
+                switch (data.message) {
+                    case DGERROR.RoomExists:
+                        roomExists(data);
+                        break;
+                    case DGERROR.FailCreateRoom:
+                        failCreateRoom(data);
+                    default:
+                        console.log('UNKNOWN ERROR', data);
+                        break;
+                }
+            });
         }
-        console.log(`Error: could not create room ${roomCode}`);
-        await createRes.json().then((data) => {
-            switch (data.message) {
-                case DGERROR.RoomExists:
-                    roomExists(data);
-                    break;
-                case DGERROR.FailCreateRoom:
-                    failCreateRoom(data);
-                default:
-                    console.log('UNKNOWN ERROR', data);
-                    break;
-            }
-        });
     };
 
     const roomExists = (data: {message: string}) => {
