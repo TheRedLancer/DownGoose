@@ -14,6 +14,7 @@ function addPortToAllowedHosts(endpoints: string[], ports: number[]) {
         for (const port of ports) {
             out.push(ep + ':' + port);
         }
+        out.push(ep);
     }
     return out;
 }
@@ -31,7 +32,7 @@ export const config: any = {
     DEFAULT_EXPIRATION: 60 * 3,
     HOUR_EXPIRATION: 60 * 60, // one hour
     SERVER_PORT: getDefault(process.env.SERVER_PORT, '3000'),
-    ALLOWED_HOSTS: addPortToAllowedHosts(ENDPOINTS, [3000]),
+    ALLOWED_HOSTS: addPortToAllowedHosts(ENDPOINTS, [3000, 5173]),
     REDIS_HOSTNAME: getDefault(process.env.REDIS_URL, 'localhost'),
     REDIS_PORT: getDefault(process.env.REDIS_PORT, '18346'),
     REDIS_USER: 'default',

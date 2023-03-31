@@ -6,6 +6,7 @@ import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import * as server from '../server.js';
 import './Home.css';
+import {DGERROR} from '../types/DGERROR';
 
 export default function Home() {
     const [nickname, setNickname] = useState('');
@@ -14,26 +15,32 @@ export default function Home() {
     const navigate = useNavigate();
 
     const joinRoom = async () => {
-        let joinRes = await server
-            .putPlayerInRoom(roomCode, nickname)
-            .catch((e) => {
-                console.log(e);
-            });
+        let joinRes = await server.putPlayerInRoom(roomCode, nickname);
         if (!joinRes) {
             return;
         }
-        if (joinRes.status != 200) {
-            console.log(
-                `Error: could not join: ${roomCode}`,
-                joinRes,
-                '\nbody:',
-                await joinRes.json()
-            );
-            return;
+        if (joinRes.status === 201) {
+            joinRes.json().then((data) => {
+                console.log('Sending data:', data);
+                const nav_data = {
+                    statePlayer: data.player,
+                    stateRoomId: data.roomId,
+                };
+                navigate(`/${nav_data.statePlayer.roomCode}/lobby`, {
+                    state: nav_data,
+                });
+            });
         }
-        joinRes.json().then((data) => {
-            console.log('Sending data:', data);
-            navigate(`/${data.room.roomCode}/lobby`, {state: data});
+        console.log(`Error: could not join room ${roomCode}`);
+        await joinRes.json().then((data) => {
+            switch (data.message) {
+                case DGERROR.RoomNotFound:
+                    roomExists(data);
+                    break;
+                default:
+                    console.log('UNKNOWN ERROR', data);
+                    break;
+            }
         });
     };
 
@@ -48,11 +55,30 @@ export default function Home() {
             return;
         }
         console.log(createRes);
-        if (createRes.status != 200) {
-            console.log(`Error: could not create room ${roomCode}`);
-            return;
+        if (createRes.status === 201) {
+            joinRoom();
         }
-        joinRoom();
+        console.log(`Error: could not create room ${roomCode}`);
+        await createRes.json().then((data) => {
+            switch (data.message) {
+                case DGERROR.RoomExists:
+                    roomExists(data);
+                    break;
+                case DGERROR.FailCreateRoom:
+                    failCreateRoom(data);
+                default:
+                    console.log('UNKNOWN ERROR', data);
+                    break;
+            }
+        });
+    };
+
+    const roomExists = (data: {message: string}) => {
+        console.log(data.message);
+    };
+
+    const failCreateRoom = (data: {message: string}) => {
+        console.log(data.message);
     };
 
     const onJoinButton = async () => {

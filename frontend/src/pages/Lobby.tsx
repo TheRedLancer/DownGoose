@@ -8,7 +8,6 @@ import PlayerReadyDisplay from '../components/PlayerReadyDisplay';
 import {lobbySocket} from '../socket';
 
 export default function Lobby() {
-    const [parsedLocationState, setParsedLocationState] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [player, setPlayer] = useState<LobbyPlayer | undefined>(undefined);
     const [players, setPlayers] = useState<LobbyPlayers>([]);
@@ -16,22 +15,25 @@ export default function Lobby() {
     const [roomCode, setRoomCode] = useState('');
     const [roomId, setRoomId] = useState('');
 
-    const {state} = useLocation();
+    const {statePlayer, stateRoomId} = useLocation().state as {
+        statePlayer: Player;
+        stateRoomId: string;
+    };
     const navigate = useNavigate();
+    if (!(statePlayer || player) && (stateRoomId || roomId)) {
+        navigate(`/`);
+    }
+    console.log(statePlayer, stateRoomId);
 
     useEffect(() => {
-        if (!parsedLocationState) {
-            console.log('STATE', state);
-            setPlayer({
-                nickname: state.player.nickname,
-                id: state.playerId,
-                ready: false,
-            });
-            setRoomCode(state.room.roomCode);
-            setRoomId(state.roomId);
-            setParsedLocationState(true);
-        }
-    }, [state]);
+        setPlayer({
+            nickname: statePlayer.nickname,
+            id: statePlayer.id,
+            ready: false,
+        });
+        setRoomCode(statePlayer.roomCode);
+        setRoomId(stateRoomId);
+    }, []);
 
     useEffect(() => {
         // no-op if the socket is already connected
@@ -127,7 +129,7 @@ export default function Lobby() {
             lobbySocket.off('game-start', onGameStart);
             lobbySocket.off('disconnect', onDisconnect);
         };
-    }, [state, player, players]);
+    }, [player, players]);
 
     function toggleReady() {
         if (!isConnected) {
@@ -163,17 +165,17 @@ export default function Lobby() {
             return;
         }
         // TODO: Uncomment to make people wait till everyone is ready
-        // let allReady = ready;
-        // for (const p of players) {
-        //     if (!p.ready) {
-        //         allReady = false;
-        //     }
-        // }
-        // if (allReady) {
-        lobbySocket.emit('start-game', player.id, roomId);
-        // } else {
-        //     console.log("Someone isn't ready");
-        // }
+        let allReady = ready;
+        for (const p of players) {
+            if (!p.ready) {
+                allReady = false;
+            }
+        }
+        if (allReady) {
+            lobbySocket.emit('start-game', player.id, roomId);
+        } else {
+            console.log("Someone isn't ready");
+        }
     }
 
     const isPlayerReady = player?.ready.toString();

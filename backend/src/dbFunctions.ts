@@ -1,6 +1,7 @@
 import {roomRepo, playerRepo} from './db.js';
 import {config} from './config.js';
 import {nanoid} from 'nanoid';
+import {DGERROR} from './types/DGERROR.js';
 
 function makePlayer(nickname: string, roomCode: string): Player {
     return {
@@ -57,10 +58,18 @@ async function getPlayersInRoom(room: Room): Promise<Player[]> {
  * @param roomCode
  */
 export async function createGameRoom(roomCode: string): Promise<Room> {
+    const checkRoom = (await roomRepo
+        .search()
+        .where('roomCode')
+        .equals(roomCode)
+        .return.first()) as Room | null;
+    if (checkRoom) {
+        throw new Error(DGERROR.RoomExists);
+    }
     const room = makeRoom(roomCode);
     const room_r = (await roomRepo.save(room.id, room)) as Room | null;
     if (!room_r) {
-        throw new Error(DGERROR.UnknownRedisError);
+        throw new Error('' + DGERROR.UnknownRedisError);
     }
     await roomRepo.expire(room_r.id, config.HOUR_EXPIRATION);
     return room_r;
@@ -86,6 +95,7 @@ export async function addPlayerToRoomCode(
     if (!room) {
         throw new Error(DGERROR.RoomNotFound);
     }
+    // TODO: Check if user exists in the room with the same nickname
     return addPlayerToRoom(room, nickname);
 }
 
@@ -168,7 +178,6 @@ export async function getLobbyData(roomId: string): Promise<LobbyPlayer[]> {
  */
 export async function readyPlayer(playerId: string, ready: boolean) {
     let player = (await playerRepo.fetch(playerId)) as Player | null;
-    console.log(player);
     if (!player) {
         throw new Error(DGERROR.PlayerNotFound);
     }

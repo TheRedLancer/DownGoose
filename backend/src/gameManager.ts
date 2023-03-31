@@ -46,7 +46,6 @@ const GameManager = {
                 async (playerId: string, roomId: string, color: number) => {
                     console.log(socket.id, 'emit player-action-color', roomId);
                     const data = await setColorAction(playerId, roomId, color);
-                    console.log(data);
                     gameIO
                         .in(roomId)
                         .emit('player-action-color', playerId, color, data);
@@ -66,7 +65,6 @@ const GameManager = {
                         roomId,
                         isRotating
                     );
-                    console.log(data);
                     gameIO
                         .in(roomId)
                         .emit(
@@ -83,7 +81,6 @@ const GameManager = {
                 async (playerId: string, roomId: string) => {
                     console.log(socket.id, 'emit player-action-quack', roomId);
                     const data = await setQuackAction(playerId, roomId);
-                    console.log(data);
                     gameIO
                         .in(roomId)
                         .emit('player-action-quack', playerId, data);
@@ -99,7 +96,6 @@ const GameManager = {
                         roomId
                     );
                     const data = await quackResponse(playerId, roomId);
-                    console.log(data);
                     gameIO
                         .in(roomId)
                         .emit('player-response-quack', playerId, data);

@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import {config} from './config.js';
 import {addPlayerToRoomCode, createGameRoom} from './dbFunctions.js';
+import {DGERROR} from './types/DGERROR.js';
 
 const port = process.env.SERVER_PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -27,8 +28,12 @@ export default function startExpress() {
         async (req: Request, res: Response) => {
             console.log('create room');
             try {
-                const data = await createGameRoom(req.body.roomCode);
+                const room = await createGameRoom(req.body.roomCode);
+                const data = {
+                    room: room,
+                };
                 res.status(201).send(data);
+                return;
             } catch (e) {
                 if (e instanceof Error) {
                     console.log(e);
@@ -37,20 +42,20 @@ export default function startExpress() {
                             res.status(409).send({
                                 message: DGERROR.RoomExists,
                             });
-                            break;
+                            return;
                         case DGERROR.UnknownRedisError:
                         // Fallthrough on purpose
                         case DGERROR.FailCreateRoom:
                             res.status(409).send({
                                 message: DGERROR.FailCreateRoom,
                             });
-                            break;
+                            return;
                         default:
                             res.status(500).send({
                                 message: 'InternalServerError',
                             });
+                            return;
                     }
-                    res.status(500).send({message: e.message});
                 }
             }
             res.status(500).send({message: 'InternalServerError'});
@@ -67,7 +72,12 @@ export default function startExpress() {
                     req.body.roomCode,
                     req.body.nickname
                 );
-                // TODO: Add send to client
+                const data = {
+                    player: player,
+                    roomId: room.id,
+                };
+                res.status(201).send(data);
+                return;
             } catch (e) {
                 if (e instanceof Error) {
                     console.log(e);
@@ -78,13 +88,13 @@ export default function startExpress() {
                             res.status(404).send({
                                 message: DGERROR.RoomNotFound,
                             });
-                            break;
+                            return;
                         default:
                             res.status(500).send({
                                 message: 'InternalServerError',
                             });
+                            return;
                     }
-                    res.status(500).send({message: e.message});
                 }
             }
             res.status(500).send({message: 'InternalServerError'});
