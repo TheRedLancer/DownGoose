@@ -6,14 +6,11 @@ import {config} from './config.js';
 import {addPlayerToRoomCode, createGameRoom} from './dbFunctions.js';
 import {DGERROR} from './types/DGERROR.js';
 
-const port = process.env.SERVER_PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default function startExpress() {
     const app = express();
-    // console.log(config.ALLOWED_HOSTS);
-    console.log(`running on ${port}`);
     var corsOptions = {
         origin: config.ALLOWED_HOSTS,
         optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
