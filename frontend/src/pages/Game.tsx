@@ -29,7 +29,7 @@ export default function Game() {
     const {state} = useLocation();
 
     function parseGameData(data: GameState) {
-        console.log('New GameState:', data);
+        // console.log('New GameState:', data);
         setPlayers(
             data.players.filter((p: GamePlayer) => {
                 if (p.id === player?.id) {
@@ -48,7 +48,7 @@ export default function Game() {
         let p = gs.players.filter((p: GamePlayer) => p.id === state.player.id);
         if (p.length === 1) {
             setPlayer(p[0]);
-            console.log(p[0]);
+            // console.log(p[0]);
         }
         let players: GamePlayer[] = gs.players.filter(
             (p: GamePlayer) => p.id !== state.player.id
@@ -78,14 +78,14 @@ export default function Game() {
 
         function onJoin(gameData: GameState) {
             console.log('got on-join');
-            console.log('Game data:', gameData);
+            // console.log('Game data:', gameData);
             parseGameData(gameData);
         }
 
         function onPlayerJoin(playerId: string, gameData: GameState) {
             console.log('got player-join');
-            console.log(playerId + ' joined');
-            console.log('Game data:', gameData);
+            // console.log(playerId + ' joined');
+            // console.log('Game data:', gameData);
             parseGameData(gameData);
         }
 

@@ -21,7 +21,7 @@ export default function Home() {
         }
         if (joinRes.status === 201) {
             joinRes.json().then((data) => {
-                console.log('Sending data:', data);
+                // console.log('Sending data:', data);
                 const nav_data = {
                     statePlayer: data.player,
                     stateRoomId: data.roomId,
@@ -46,7 +46,6 @@ export default function Home() {
     };
 
     const onHostButton = async () => {
-        console.log('Host');
         if (!nickname || !roomCode) {
             console.log('FILL IN NAME OR ROOMCODE');
             return;
@@ -55,7 +54,7 @@ export default function Home() {
         if (!createRes) {
             return;
         }
-        console.log(createRes);
+        // console.log(createRes);
         if (createRes.status === 201) {
             joinRoom();
         } else {
@@ -84,7 +83,6 @@ export default function Home() {
     };
 
     const onJoinButton = async () => {
-        console.log('Join');
         if (!nickname || !roomCode) {
             console.log('FILL IN NAME OR ROOMCODE');
             return;

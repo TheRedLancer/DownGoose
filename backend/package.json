@@ -9,8 +9,7 @@
         "build": "npx rimraf dist && npx tsc",
         "start": "node dist/app.js",
         "dev": "tsc && concurrently \"npx tsc -w\" \"nodemon dist/app.js\"",
-        "clean": "rm -rf ./dist/*",
-        "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+        "clean": "rm -rf ./dist/*"
     },
     "jest": {
         "transform": {
@@ -33,7 +32,6 @@
     },
     "devDependencies": {
         "@types/express": "^4.17.17",
-        "prettier": "^2.8.7",
         "@types/jest": "^29.4.0",
         "@types/node": "^18.15.3",
         "concurrently": "^7.6.0",

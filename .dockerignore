@@ -1,0 +1,8 @@
+**/node_modules
+**/docs
+**/scripts
+**/dist
+**/__tests__
+**/.prettierrc
+**/.gitignore
+npm-debug.log

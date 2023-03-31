@@ -23,7 +23,7 @@ export default function Lobby() {
     if (!(statePlayer || player) && (stateRoomId || roomId)) {
         navigate(`/`);
     }
-    console.log(statePlayer, stateRoomId);
+    // console.log(statePlayer, stateRoomId);
 
     useEffect(() => {
         setPlayer({
@@ -102,7 +102,7 @@ export default function Lobby() {
                 gameState: gameState,
                 player: player,
             };
-            console.log(data);
+            // console.log(data);
             navigate(`/${gameState.roomCode}/game`, {state: data});
         }
 
