@@ -39,6 +39,7 @@ export default function Game() {
             })
         );
         setActivePlayer(data.activePlayer);
+        // Dont set on ready action
         setNumberQuacked(data.numberQuacked);
         setGameOver(data.gameOver);
     }
@@ -95,7 +96,14 @@ export default function Game() {
             gameData: GameState
         ) {
             console.log('got player-action-color');
-            parseGameData(gameData);
+            setPlayers(
+                gameData.players.filter((p: GamePlayer) => {
+                    if (p.id === player?.id) {
+                        setPlayer(p);
+                    }
+                    return p.id !== player?.id;
+                })
+            );
         }
 
         function onPlayerResponseColor(
@@ -104,17 +112,39 @@ export default function Game() {
             gameData: GameState
         ) {
             console.log('got player-response-color');
-            parseGameData(gameData);
+            setPlayers(
+                gameData.players.filter((p: GamePlayer) => {
+                    if (p.id === player?.id) {
+                        setPlayer(p);
+                    }
+                    return p.id !== player?.id;
+                })
+            );
         }
 
         function onPlayerActionQuack(playerId: string, gameData: GameState) {
             console.log('got player-action-quack');
-            parseGameData(gameData);
+            setPlayers(
+                gameData.players.filter((p: GamePlayer) => {
+                    if (p.id === player?.id) {
+                        setPlayer(p);
+                    }
+                    return p.id !== player?.id;
+                })
+            );
+            setNumberQuacked(gameData.numberQuacked);
         }
 
         function onPlayerResponseQuack(playerId: string, gameData: GameState) {
             console.log('got player-response-quack');
-            parseGameData(gameData);
+            setPlayers(
+                gameData.players.filter((p: GamePlayer) => {
+                    if (p.id === player?.id) {
+                        setPlayer(p);
+                    }
+                    return p.id !== player?.id;
+                })
+            );
         }
 
         if (isConnected) {

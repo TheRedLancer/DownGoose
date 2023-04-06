@@ -390,22 +390,26 @@ export async function quackResponse(playerId: string, roomId: string) {
     }
     let players = await getPlayersInRoom(room);
     if (checkTurnOver(players)) {
-        const gameOver = checkGameOver(players);
-        if (gameOver) {
-            room.gameOver = true;
-        }
-        nextTurn(room, players);
-        room = (await roomRepo.save(room)) as Room;
-        players = await Promise.all(
-            players.map(async (player) => {
-                if (!gameOver) {
-                    player.currentRotation = (player.currentRotation + 2) % 4;
-                }
-                return (await playerRepo.save(player)) as Player;
-            })
-        );
+        turnOverQuack(room, players);
     }
     return gameState(room, players);
+}
+
+async function turnOverQuack(room: Room, players: Player[]) {
+    const gameOver = checkGameOver(players);
+    if (gameOver) {
+        room.gameOver = true;
+    }
+    nextTurn(room, players);
+    room = (await roomRepo.save(room)) as Room;
+    players = await Promise.all(
+        players.map(async (player) => {
+            if (!gameOver) {
+                player.currentRotation = (player.currentRotation + 2) % 4;
+            }
+            return (await playerRepo.save(player)) as Player;
+        })
+    );
 }
 
 function checkTurnOver(players: Player[]): boolean {

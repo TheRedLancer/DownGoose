@@ -1,5 +1,4 @@
-const baseURL =
-    import.meta.env.VITE_SERVER_URL + ':' + import.meta.env.VITE_SERVER_PORT;
+const baseURL = import.meta.env.VITE_BASE_URL || '';
 async function putRoom(roomCode: string) {
     const res = await fetch(baseURL + '/api/room/create', {
         method: 'PUT',

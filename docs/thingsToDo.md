@@ -4,6 +4,8 @@
 - check name clashes in lobby for join
 - Auto-gen name
 - identicon node package
+- Number quacked chaged on alt-tab
+- Undo/Confirm on action choice
 
 ### How to do it
 
@@ -38,3 +40,10 @@ player can:
 ```
 When you go to /game/:roomCode, get the name from localstorage, connect to socket. Socket sends player data currently in the lobby and game state as a response. Set up the listener to redis game instance.
 ```
+
+# UI/UX to do:
+
+Better know if it's your turn
+Better know what color was called
+
+How doe it change with screen size?
