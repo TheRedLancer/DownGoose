@@ -20,8 +20,8 @@ function addPortToAllowedHosts(endpoints: string[], ports: number[]) {
 }
 
 const ENDPOINTS = [
-    getDefault(process.env.URL, 'localhost'),
-    '127.0.0.1',
+    getDefault(process.env.URL, 'http://localhost'),
+    'http://127.0.0.1',
     'https://admin.socket.io',
 ];
 
@@ -38,3 +38,4 @@ export const config: any = {
     REDIS_USER: 'default',
     REDIS_PASS: getDefault(process.env.REDIS_PASS, ''),
 };
+console.log(config.ALLOWED_HOSTS);
